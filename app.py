@@ -19,40 +19,47 @@ def after_request(response):
     response.headers["Pragma"] = "no-cache"
     return response
 
-# https://flask.palletsprojects.com/en/3.0.x/patterns/sqlite3/
-# DATABASE = '/path/to/database.db'
 
-# def get_db():
-#     db = getattr(g, '_database', None)
-#     if db is None:
-#         db = g._database = sqlite3.connect(DATABASE)
-#     return db
-
-# @app.teardown_appcontext
-# def close_connection(exception):
-#     db = getattr(g, '_database', None)
-#     if db is not None:
-#         db.close()
-
-
-@app.route('/')
+@app.route('/', methods=["GET", "POST"])
 def index():
-    # Connect to the SQLite3 datatabase and 
-    # SELECT rowid and all Rows from the students table.
-    con = sqlite3.connect("meal_planner.db")
-    con.row_factory = sqlite3.Row
+    #User reached route via POST (as by submitting a form via POST)
+    if request.method == "POST":
+        # Access form data
+        id = request.form.get("id")
 
-    cur = con.cursor()
-    cur.execute("SELECT name FROM recipes")
+        # Connect to the SQLite3 datatabase and 
+        # SELECT rowid and all Rows from the students table.
+        con = sqlite3.connect("meal_planner.db")
+        con.row_factory = sqlite3.Row
 
-    rows = cur.fetchall()
-    print(rows)
-    con.close()
-    # Send the results of the SELECT to the list.html page
-    return render_template("index.html", rows=rows)
+        cur = con.cursor()
+        cur.execute("SELECT * FROM recipes WHERE id = " + id)
+
+        row = cur.fetchall()
+
+        con.close()
+
+        # Send the results of the SELECT to the list.html page
+        return render_template("recipe.html", row=row)
+
+        
+    else:
+        # Connect to the SQLite3 datatabase and 
+        # SELECT rowid and all Rows from the students table.
+        con = sqlite3.connect("meal_planner.db")
+        con.row_factory = sqlite3.Row
+
+        cur = con.cursor()
+        cur.execute("SELECT id, name FROM recipes")
+
+        rows = cur.fetchall()
+
+        con.close()
+        # Send the results of the SELECT to the list.html page
+        return render_template("index.html", rows=rows)
 
 
-# Route to form used to add a new student to the database
+# Route to form used to add a new recipe to the database
 @app.route("/new_recipe", methods=["GET", "POST"])
 def new_recipe():
     # User reached route via POST (as by submitting a form via POST)
@@ -85,3 +92,4 @@ def new_recipe():
                
     else:    
         return render_template("new_recipe.html")
+

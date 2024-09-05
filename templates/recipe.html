@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Recipe
+{% endblock %}
+
+{% block main %}
+
+    <h2>{{ row[0]["name"] }}</h2>
+    <h3>Ingredientes</h3>
+    <!-- ADD INGREDIENTS -->
+    <h3>Instrucciones</h3>
+    <p>{{ row[0]["instructions"] }}</p>
+
+{% endblock %}
