@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    New recipe
+{% endblock %}
+
+{% block main %}
+<h3 class="pb-5">New recipe</h3>
+    <form action="/new_recipe" method="post">
+        
+            <div class="mb-3">
+              <label for="recipe_name" class="form-label">Recipe name</label>
+              <input type="text" class="form-control" id="recipe_name" name="recipe_name">
+            </div>
+            <div class="mb-3">
+              <label for="recipe_instructions" class="form-label">Instructions</label>
+              <input type="text" class="form-control" id="recipe_instructions" name="recipe_instructions">
+            </div>
+            <button type="submit" class="btn btn-primary">Create</button>
+          
+    </form>
+{% endblock %}
