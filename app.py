@@ -10,6 +10,15 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
+# From CS50's Finance practice
+@app.after_request
+def after_request(response):
+    """Ensure responses aren't cached"""
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Expires"] = 0
+    response.headers["Pragma"] = "no-cache"
+    return response
+
 # https://flask.palletsprojects.com/en/3.0.x/patterns/sqlite3/
 # DATABASE = '/path/to/database.db'
 
@@ -28,7 +37,20 @@ Session(app)
 
 @app.route('/')
 def index():
-    return render_template("index.html")
+    # Connect to the SQLite3 datatabase and 
+    # SELECT rowid and all Rows from the students table.
+    con = sqlite3.connect("meal_planner.db")
+    con.row_factory = sqlite3.Row
+
+    cur = con.cursor()
+    cur.execute("SELECT name FROM recipes")
+
+    rows = cur.fetchall()
+    print(rows)
+    con.close()
+    # Send the results of the SELECT to the list.html page
+    return render_template("index.html", rows=rows)
+
 
 # Route to form used to add a new student to the database
 @app.route("/new_recipe", methods=["GET", "POST"])
