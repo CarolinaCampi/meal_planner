@@ -6,10 +6,22 @@
 
 {% block main %}
 
-    <h2>{{ row[0]["name"] }}</h2>
+    <h2>{{ recipe[0]["name"] }}</h2>
     <h3>Ingredientes</h3>
     <!-- ADD INGREDIENTS -->
+        <ul>
+            {% for ing in ing_used %}
+                <li>{{ ing["quantity"] }} {{ ing["unit_id"] }} {{ ing["ing_id"] }}</li>
+            {% endfor %}
+        </ul>
+    
     <h3>Instrucciones</h3>
-    <p>{{ row[0]["instructions"] }}</p>
+    <p>{{ recipe[0]["instructions"] }}</p>
+
+{% endblock %}
+
+
+{% block script %}
+
 
 {% endblock %}

@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Result
+{% endblock %}
+
+{% block main %}
+
+    <section class="mb-4">
+        <h1 class="text-center mb-5">Search recipes</h1>
+        <form action="/search" method="get" class="row justify-content-center">
+            <div class="col-9">
+                <label class="visually-hidden" for="search_bar">Search</label>
+                <input type="text" class="form-control" id="search_bar" placeholder="Search" name="query">
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-warning">Search</button>
+            </div>
+        </form>
+    </section>
+    <section class="container-fluid text-center">
+        <div class="row">
+            {% for recipe in recipes %}
+                <div class="col-md-3 my-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">{{ recipe["name"] }}</h5>
+                            <form action="/search" method="post">
+                                <input name="id" type="hidden" value="{{ recipe['id'] }}">
+                                <button type="submit" class="btn btn-primary">Receta</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+{% endblock %}
+
+{% block script %}
+
+{% endblock %}
