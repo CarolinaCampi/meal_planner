@@ -72,6 +72,7 @@ def index():
 
 
 # Route to form used to add a new recipe to the database
+# FALTA AGREGAR HANDLING DE INGREDINTES Y UNIDADES
 @app.route("/new_recipe", methods=["GET", "POST"])
 def new_recipe():
     # User reached route via POST (as by submitting a form via POST)
@@ -108,7 +109,7 @@ def new_recipe():
         return render_template("new_recipe.html")
 
 
-# Route to form used to add a new recipe to the database
+# Route to search recipes in the database
 @app.route("/search", methods=["GET", "POST"])
 def search():
     # User reached route via POST (as by submitting a form via POST)
@@ -136,13 +137,15 @@ def search():
     else:   
         query = request.args.get("query")
         if query:
+            print("query:" + query)
             # Connect to the SQLite3 datatabase
             cur = db_connect()
             # Step 4: Execute the SELECT query
-            cur.execute("SELECT id, name FROM recipes WHERE name LIKE ? LIMIT 50", (query,))
+            cur.execute("SELECT id, name FROM recipes WHERE name LIKE ? LIMIT 50", ("%" + query + "%", ))
             # Step 5: Fetch the results
             # Use fetchall() to get all results or fetchone() for a single row
             recipes = cur.fetchall()
+            print(recipes)
             # Close the connection
             db_close(cur)
             
@@ -151,6 +154,7 @@ def search():
         return render_template("search.html", recipes=recipes)
     
 # Route to form used to edit recipe and save to the database the revised recipe
+# FALTA AGREGAR LA PARTE DE EDITAR LOS INGREDIENTES
 @app.route("/edit_recipe", methods=["GET", "POST"])
 def edit_recipe():
     # User reached route via POST (as by submitting a form via POST)
