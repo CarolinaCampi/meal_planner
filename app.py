@@ -93,9 +93,11 @@ def new_recipe():
 
                 con.commit()
                 msg = "Record successfully added to database"
-        except:
+        
+        except Exception as e:
+            # Rollback in case of error
             con.rollback()
-            msg = "Error in the INSERT"
+            msg = "Error in the INSERT: " + str(e)
 
         finally:
             con.close()
@@ -171,9 +173,11 @@ def edit_recipe():
 
                 con.commit()
                 msg = "Record successfully edited in the database"
-        except:
+        
+        except Exception as e:
+            # Rollback in case of error
             con.rollback()
-            msg = "Error in the Edit"
+            msg = "Error in the UPDATE: " + str(e)
 
         finally:
             con.close()
@@ -181,16 +185,16 @@ def edit_recipe():
             return render_template('result.html', msg=msg) 
 
     else:
-        id = request.args.get("id")
+        recipe_id = request.args.get("recipe_id")
 
         # Connect to the SQLite3 datatabase
         cur = db_connect()
         # Execute the SELECT query
-        cur.execute("SELECT * FROM recipes WHERE id = ?", (id,))
+        cur.execute("SELECT * FROM recipes WHERE id = ?", (recipe_id,))
         recipe = cur.fetchall()
 
         # Execute the second SELECT query on 'ing_used' table
-        cur.execute("SELECT * FROM ing_used WHERE recipe_id = ?", (id,))
+        cur.execute("SELECT * FROM ing_used WHERE recipe_id = ?", (recipe_id,))
         ing_used = cur.fetchall()
 
         # Close the connection
@@ -204,47 +208,40 @@ def edit_recipe():
 def delete_recipe():
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
-        recipe_id = request.form.get("recipe_id")
-
-        recipe_name = request.form.get("recipe_name")
-        if not recipe_name:
-            return render_template('result.html', msg = "Please complete a recipe name")
-        
-        instructions = request.form.get("recipe_instructions")
-        if not instructions:
-            return render_template('result.html', msg = "Please complete instructions for the recipe")
-
         try:
-            # UPDATE a specific record in the database based on the rowid
+            # Use the hidden input value of id from the form to get the rowid
+            recipe_id = request.form['recipe_id']
+            # Connect to the database and DELETE a specific record based on rowid
             with sqlite3.connect('meal_planner.db') as con:
-                cur = con.cursor()
-                cur.execute("UPDATE recipes SET name = ?, instructions = ? WHERE id = ?", (recipe_name, instructions, recipe_id))
+                    cur = con.cursor()
+                    # Delete from 'ing_used' table first to maintain referential integrity
+                    cur.execute("DELETE FROM ing_used WHERE recipe_id = ?", (recipe_id,))
 
-                con.commit()
-                msg = "Record successfully edited in the database"
-        except:
+                    cur.execute("DELETE FROM recipes WHERE id = ?", (recipe_id,))
+                    # Commit the transaction
+                    con.commit()
+                    msg = "Records successfully deleted from the database"
+
+        except Exception as e:
+            # Rollback in case of error
             con.rollback()
-            msg = "Error in the Edit"
+            msg = "Error in the DELETE: " + str(e)
 
         finally:
             con.close()
             # Send the transaction message to result.html
-            return render_template('result.html', msg=msg) 
+            return render_template('result.html',msg=msg)
 
     else:
-        id = request.args.get("id")
+        recipe_id = request.args.get("recipe_id")
 
         # Connect to the SQLite3 datatabase
         cur = db_connect()
         # Execute the SELECT query
-        cur.execute("SELECT * FROM recipes WHERE id = ?", (id,))
+        cur.execute("SELECT * FROM recipes WHERE id = ?", (recipe_id,))
         recipe = cur.fetchall()
-
-        # Execute the second SELECT query on 'ing_used' table
-        cur.execute("SELECT * FROM ing_used WHERE recipe_id = ?", (id,))
-        ing_used = cur.fetchall()
 
         # Close the connection
         db_close(cur)
 
-        return render_template("delete_recipe.html", recipe=recipe, ing_used=ing_used)
+        return render_template("delete_recipe.html", recipe=recipe)
