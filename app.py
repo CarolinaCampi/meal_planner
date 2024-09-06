@@ -10,24 +10,18 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-# Function to perform SELECT queries on the database
-def db_select(query):
+# Function to connect the database
+def db_connect():
     # Connect to the SQLite3 datatabase
     con = sqlite3.connect("meal_planner.db")
     # Use sqlite3.Row to access columns by name
     con.row_factory = sqlite3.Row
     # Create a cursor object
     cur = con.cursor()
-    # Execute the SELECT query
-    cur.execute("SELECT * FROM recipes WHERE id = ?", (id,))
-    # Fetch the results
-    # Use fetchall() to get all results or fetchone() for a single row
-    recipe = cur.fetchall()
-    # Execute the second SELECT query on 'ing_used' table
-    cur.execute("SELECT * FROM ing_used WHERE recipe_id = ?", (id,))
-    ing_used = cur.fetchall()
+    return cur
 
-    # Step 7: Close the connection
+# close the connection
+def db_close(con):
     con.close()
 
 # From CS50's Finance practice
@@ -46,45 +40,33 @@ def index():
     if request.method == "POST":
         # Access form data
         id = request.form.get("id")
-
-        # Connect to the SQLite3 datatabase and 
-        # SELECT all columns of the row with the matching id in the recipe table.
-        con = sqlite3.connect("meal_planner.db")
-        # Use sqlite3.Row to access columns by name
-        con.row_factory = sqlite3.Row
-        # Create a cursor object
-        cur = con.cursor()
+        # Connect to the SQLite3 datatabase
+        cur = db_connect()
         # Execute the SELECT query
         cur.execute("SELECT * FROM recipes WHERE id = ?", (id,))
-        # Fetch the results
-        # Use fetchall() to get all results or fetchone() for a single row
+        # Fetch the results: Use fetchall() to get all results or fetchone() for a single row
         recipe = cur.fetchall()
         # Execute the second SELECT query on 'ing_used' table
         cur.execute("SELECT * FROM ing_used WHERE recipe_id = ?", (id,))
         ing_used = cur.fetchall()
 
-        # Step 7: Close the connection
-        con.close()
+        # Close the connection
+        db_close(cur)
 
         # Send the results of the SELECT to the list.html page
         return render_template("recipe.html", recipe=recipe, ing_used=ing_used)
 
         
     else:
-        # Connect to the SQLite3 datatabase and SELECT id and name from the recipes table.
-        # Step 1: Connect to the meal_planner.db database
-        con = sqlite3.connect("meal_planner.db")
-        # Step 2: Use sqlite3.Row to access columns by name
-        con.row_factory = sqlite3.Row
-        # Step 3: Create a cursor object
-        cur = con.cursor()
-        # Step 4: Execute the SELECT query
+        # Connect to the database and create a cursor
+        cur = db_connect()
+        # Execute the SELECT query
         cur.execute("SELECT id, name FROM recipes")
-        # Step 5: Fetch the results
-        # Use fetchall() to get all results or fetchone() for a single row
+        # Fetch the results: use fetchall() to get all results or fetchone() for a single row
         rows = cur.fetchall()
-        # Step 7: Close the connection
-        con.close()
+        # Close the connection
+        db_close(cur)
+
         # Send the results of the SELECT to the list.html page
         return render_template("index.html", rows=rows)
 
@@ -132,24 +114,18 @@ def search():
        # Access form data
         id = request.form.get("id")
 
-        # Connect to the SQLite3 datatabase and 
-        # SELECT all columns of the row with the matching id in the recipe table.
-        con = sqlite3.connect("meal_planner.db")
-        # Use sqlite3.Row to access columns by name
-        con.row_factory = sqlite3.Row
-        # Create a cursor object
-        cur = con.cursor()
+        # Connect to the SQLite3 datatabase
+        cur = db_connect()
         # Execute the SELECT query
         cur.execute("SELECT * FROM recipes WHERE id = ?", (id,))
-        # Fetch the results
-        # Use fetchall() to get all results or fetchone() for a single row
         recipe = cur.fetchall()
+        
         # Execute the second SELECT query on 'ing_used' table
         cur.execute("SELECT * FROM ing_used WHERE recipe_id = ?", (id,))
         ing_used = cur.fetchall()
 
-        # Step 7: Close the connection
-        con.close()
+        # Close the connection
+        db_close(cur)
 
         # Send the results of the SELECT to the list.html page
         return render_template("recipe.html", recipe=recipe, ing_used=ing_used)
@@ -158,20 +134,15 @@ def search():
     else:   
         query = request.args.get("query")
         if query:
-            # Connect to the SQLite3 datatabase and SELECT id and name from the recipes table.
-            # Step 1: Connect to the meal_planner.db database
-            con = sqlite3.connect("meal_planner.db")
-            # Step 2: Use sqlite3.Row to access columns by name
-            con.row_factory = sqlite3.Row
-            # Step 3: Create a cursor object
-            cur = con.cursor()
+            # Connect to the SQLite3 datatabase
+            cur = db_connect()
             # Step 4: Execute the SELECT query
             cur.execute("SELECT id, name FROM recipes WHERE name LIKE ? LIMIT 50", (query,))
             # Step 5: Fetch the results
             # Use fetchall() to get all results or fetchone() for a single row
             recipes = cur.fetchall()
-            # Step 7: Close the connection
-            con.close()
+            # Close the connection
+            db_close(cur)
             
         else:
             recipes = []
