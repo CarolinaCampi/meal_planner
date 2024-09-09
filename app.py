@@ -1,6 +1,7 @@
 from flask import Flask, flash, redirect, render_template, request, session, g
 from flask_session import Session
 import sqlite3
+import random
 
 # Configure application
 app = Flask(__name__)
@@ -33,7 +34,7 @@ def after_request(response):
     response.headers["Pragma"] = "no-cache"
     return response
 
-
+# Homepage shows a list of the recipes on the database
 @app.route('/', methods=["GET", "POST"])
 def index():
     #User reached route via POST (as by submitting a form via POST)
@@ -73,8 +74,8 @@ def index():
 
 # Route to form used to add a new recipe to the database
 # FALTA AGREGAR HANDLING DE INGREDINTES Y UNIDADES
-@app.route("/new_recipe", methods=["GET", "POST"])
-def new_recipe():
+@app.route("/create_recipe", methods=["GET", "POST"])
+def create_recipe():
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
         # Access form data
@@ -106,7 +107,7 @@ def new_recipe():
             return render_template("result.html", msg=msg)
                
     else:    
-        return render_template("new_recipe.html")
+        return render_template("create_recipe.html")
 
 
 # Route to search recipes in the database
@@ -137,7 +138,6 @@ def search():
     else:   
         query = request.args.get("query")
         if query:
-            print("query:" + query)
             # Connect to the SQLite3 datatabase
             cur = db_connect()
             # Step 4: Execute the SELECT query
@@ -145,7 +145,6 @@ def search():
             # Step 5: Fetch the results
             # Use fetchall() to get all results or fetchone() for a single row
             recipes = cur.fetchall()
-            print(recipes)
             # Close the connection
             db_close(cur)
             
@@ -249,3 +248,54 @@ def delete_recipe():
         db_close(cur)
 
         return render_template("delete_recipe.html", recipe=recipe)
+    
+
+# Route to access the meal planner functionality
+@app.route("/create_plan", methods=["GET", "POST"])
+def create_plan():
+    # User reached route via POST (as by submitting a form via POST)
+    if request.method == "POST":
+        meal_number = request.form.get("meal_number")
+        if not (meal_number):
+            return render_template("result.html", msg="Please insert a number of meals.")
+        try:
+            meal_number = int(meal_number)
+        except ValueError:
+            return render_template("result.html", msg="Please insert a valid number of meals.")
+        if meal_number < 1:
+            return render_template("result.html", msg="Please insert a number of meals greater than zero.")
+
+        # Connect to the SQLite3 datatabase
+        cur = db_connect()
+        # Execute the SELECT query
+        cur.execute("SELECT COUNT(*) FROM recipes")
+        recipes_number = cur.fetchall()
+        print(recipes_number[0]['COUNT(*)'])
+        recipes_number = recipes_number[0]["COUNT(*)"]
+
+        if meal_number > recipes_number:
+            msg = "The number pf meals requested is greater than the recipes in the database, " + recipes_number
+            return render_template("result.html", msg=msg)
+
+        unique_ids = random.sample(range(0, recipes_number), meal_number)
+        print(unique_ids)
+
+        placeholders = ','.join('?' for _ in unique_ids)
+        query = f"SELECT * FROM recipes WHERE id IN ({placeholders})"
+
+        cur.execute(query, unique_ids)
+
+        recipes = cur.fetchall()
+
+        # Close the connection
+        db_close(cur)
+
+        return render_template("create_plan.html", recipes=recipes)
+
+
+    else:
+        return render_template("create_plan.html")
+    
+
+
+

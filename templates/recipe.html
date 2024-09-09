@@ -18,6 +18,11 @@
     <h3>Instrucciones</h3>
     <p>{{ recipe[0]["instructions"] }}</p>
 
+    <form action="/RUTAAA" method="get" class="mb-3">
+        <input name="recipe_id" type="hidden" value="{{ recipe[0]['id'] }}">
+        <button type="submit" class="btn btn-success"><i class="bi bi-printer"></i> Exportar</button>
+    </form>
+
     <form action="/edit_recipe" method="get" class="mb-3">
         <input name="recipe_id" type="hidden" value="{{ recipe[0]['id'] }}">
         <button type="submit" class="btn btn-info"><i class="bi bi-pencil"></i> Editar</button>

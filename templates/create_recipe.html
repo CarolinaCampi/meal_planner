@@ -7,7 +7,7 @@ New recipe
 {% block main %}
 <div class="container-fluid">
     <h3 class="pb-3">New recipe</h3>
-    <form action="/new_recipe" method="post" class="mb-4">
+    <form action="/create_recipe" method="post" class="mb-4">
 
         <div class="mb-3">
             <label for="recipe_name" class="form-label">Recipe name</label>
@@ -56,7 +56,7 @@ New recipe
     <!-- Add ingredients and units -->
     <h4>Falta algún ingrediente o una unidad?</h4>
 
-    <form action="/new_recipe" method="post">
+    <form action="/create_recipe" method="post">
         <div class="row mb-3 align-items-start">
             <label for="new_ing" class="col-sm-2 col-form-label mb-2">Nuevo ingrediente</label>
             <div class="col-sm-6">
@@ -68,7 +68,7 @@ New recipe
         </div>
     </form>
 
-    <form action="/new_recipe" method="post">
+    <form action="/create_recipe" method="post">
         <div class="row mb-3 align-items-start">
             <label for="new_unit" class="col-sm-2 col-form-label mb-2">Nueva unidad</label>
             <div class="col-sm-6">
