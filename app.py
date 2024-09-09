@@ -107,7 +107,15 @@ def create_recipe():
             return render_template("result.html", msg=msg)
                
     else:    
-        return render_template("create_recipe.html")
+        cur = db_connect()
+        cur.execute("SELECT * FROM ingredients")
+        ingredients = cur.fetchall()
+
+        cur.execute("SELECT * FROM units")
+        units = cur.fetchall()
+
+        db_close(cur)
+        return render_template("create_recipe.html", ingredients=ingredients, units=units)
 
 
 # Route to search recipes in the database
@@ -270,7 +278,7 @@ def create_plan():
         # Execute the SELECT query
         cur.execute("SELECT COUNT(*) FROM recipes")
         recipes_number = cur.fetchall()
-        print(recipes_number[0]['COUNT(*)'])
+        
         recipes_number = recipes_number[0]["COUNT(*)"]
 
         if meal_number > recipes_number:
