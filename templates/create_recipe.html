@@ -16,9 +16,9 @@ New recipe
 
         <p class="form-label">Ingredients</p>
 
-        <div class="row mb-3">
+        <div class="row mb-3" id="ing1">
             <div class="col-auto mb-2">
-                <label class="visually-hidden" for="autoSizingInput">Quantity</label>
+                <label class="visually-hidden" for="quantity">Quantity</label>
                 <input type="number" class="form-control" id="quantity" placeholder="Cantidad" name="quantity_1">
             </div>
             <div class="col-auto mb-2">
@@ -40,9 +40,10 @@ New recipe
                 </select>
             </div>
             <div class="col-auto mb-2">
-                <button class="btn btn-secondary fw-bolder fs-6"><i class="bi bi-plus-square"></i></button>
+                <button type="button" class="btn btn-secondary" id="add-ingredient-button">
+                    <i class="bi bi-plus-square"></i>
+                </button>
             </div>
-
         </div>
 
         <div class="mb-3">
@@ -54,7 +55,8 @@ New recipe
     </form>
 
     <!-- Add ingredients and units -->
-    <h4>Falta algún ingrediente o una unidad?</h4>
+
+    <!-- <h4 class="mb-3">Falta algún ingrediente o una unidad?</h4>
 
     <form action="/create_recipe" method="post">
         <div class="row mb-3 align-items-start">
@@ -78,25 +80,138 @@ New recipe
                 <button class="btn btn-warning mb-2">Agregar</button>
             </div>
         </div>
-    </form>
+    </form> -->
 
 </div>
-
-
-
 
 {% endblock %}
 
 {% block script %}
 
-<!-- <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelector('button i').addEventListener('click', function() {
-            
-                });
-            });
-    
+<script>
+    i = 1;
 
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log("Script loaded!"); // Check if the script is loaded
+
+        // Attach the event listener to the button
+        const addButton = document.getElementById('add-ingredient-button');
+
+        function ing_code(number) {
+            number += 1;
+            return (
+                `
+                <div class="col-auto mb-2">
+                    <label class="visually-hidden" for="quantity">Quantity</label>
+                    <input type="number" class="form-control" id="quantity" placeholder="Cantidad" name="quantity_${number}">
+                </div>
+                <div class="col-auto mb-2">
+                    <label class="visually-hidden" for="autoSizingSelect1">Unit</label>
+                    <select class="form-select" id="autoSizingSelect1" name="unit_${number}">
+                        <option selected>Choose unit</option>
+                        <option value="1">One</option>
+                        <option value="2">Two</option>
+                        <option value="3">Three</option>
+                    </select>
+                </div>
+                <div class="col-auto mb-2">
+                    <label class="visually-hidden" for="autoSizingSelect2">Ingredient</label>
+                    <select class="form-select" id="autoSizingSelect2" name="ingredient_${number}">
+                        <option selected>Choose ingredient</option>
+                        <option value="1">One</option>
+                        <option value="2">Two</option>
+                        <option value="3">Three</option>
+                    </select>
+                </div>
+                <div class="col-auto mb-2">
+                    <button type="button" class="btn btn-secondary" id="add-ingredient-button">
+                        <i class="bi bi-plus-square"></i>
+                    </button>
+                </div>
+
+                `
+            )
+
+        };
+
+
+        // Verify if the button is found
+        if (addButton) {
+            console.log("Button found!");
+
+            addButton.addEventListener('click', function (event) {
+                // Prevent default behavior
+                event.preventDefault();
+
+                // Log to verify button click
+                console.log("Button clicked!");
+
+                // Create a new <p> element
+                const div = document.createElement("div");
+                div.classList.add("row");
+                div.classList.add("mb-2");
+                console.log("div created")
+                div.innerHTML = ing_code(i);
+                console.log("listo innerhtml")
+                // const node = document.createTextNode("This is new.");
+                // para.appendChild(node);
+
+                // Append the new <p> to the form
+                const element = document.querySelector("#ing1");
+                element.appendChild(div);
+            });
+        } else {
+            console.log("Button not found!");
+        }
+    });
+</script>
+
+<!-- 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("Script loaded!"); // Check if the script is loaded
+
+        // Attach the event listener to the button
+        const add_ing = document.getElementById('add-ingredient-button');
+
+        i = 1;
+
+        function add_code (number) {
+            i += 1
+            return (
+                `<p id="id{{number}}">texto nuevo</p>`
+            )
+
+        }; 
+        
+        
+        // Verify if the button is found
+        if (add_ing) {
+            console.log("Button found!");
+
+            add_ing.addEventListener('click', function(event) {
+                // Prevent default behavior
+                event.preventDefault();
+
+                // Log to verify button click
+                console.log("Button clicked!");
+
+                // Create a new <p> element
+                const para = document.createElement("div");
+                div.classList.add("row");
+                div.classList.add("mb-3");
+                const newcode = add_code(i);
+                para.appendChild(newcode);
+
+                // Append the new <div> to the form
+                const element = document.getElementById("ing1");
+                element.appendChild(para);
+            });
+        } else {
+            console.log("Button not found!");
+        }
+    });
 </script> -->
+
 
 {% endblock %}
