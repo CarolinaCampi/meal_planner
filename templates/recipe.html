@@ -11,7 +11,7 @@
     <!-- ADD INGREDIENTS -->
         <ul>
             {% for ing in ing_used %}
-                <li>{{ ing["quantity"] }} {{ ing["unit_id"] }} {{ ing["ing_id"] }}</li>
+                <li>{{ ing["quantity"] }} {{ ing["unit_name"] }} de {{ ing["ing_name"] }} </li>
             {% endfor %}
         </ul>
     

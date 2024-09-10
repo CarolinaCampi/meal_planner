@@ -48,9 +48,9 @@ def index():
         # Fetch the results: Use fetchall() to get all results or fetchone() for a single row
         recipe = cur.fetchall()
         # Execute the second SELECT query on 'ing_used' table
-        cur.execute("SELECT * FROM ing_used WHERE recipe_id = ?", (id,))
+        cur.execute("SELECT ing_used.quantity, ingredients.name AS ing_name, units.name AS unit_name FROM ing_used JOIN ingredients ON ingredients.id = ing_used.ing_id JOIN units ON units.id = ing_used.unit_id WHERE ing_used.recipe_id = ?", (id,))
         ing_used = cur.fetchall()
-
+        print(ing_used)
         # Close the connection
         db_close(cur)
 
@@ -73,7 +73,7 @@ def index():
 
 
 # Route to form used to add a new recipe to the database
-# FALTA AGREGAR HANDLING DE INGREDINTES Y UNIDADES
+# FALTA AGREGAR HANDLING DE NUEVOS INGREDINTES Y UNIDADES
 @app.route("/create_recipe", methods=["GET", "POST"])
 def create_recipe():
     # User reached route via POST (as by submitting a form via POST)
@@ -88,18 +88,6 @@ def create_recipe():
         instructions = request.form.get("recipe_instructions")
         if not instructions:
             return render_template('result.html', msg = "Please complete instructions for the recipe")
-
-        # quantity_1 = request.form.get("quantity_1")
-        # if not quantity_1:
-        #     return render_template('result.html', msg = "Please complete an ingredient quantity")
-        
-        # unit_1 = request.form.get("unit_1")
-        # if not unit_1:
-        #     return render_template('result.html', msg = "Please complete a unit for the ingredient")
-        
-        # ingredient_1 = request.form.get("ingredient_1")
-        # if not ingredient_1:
-        #     return render_template('result.html', msg = "Please complete an ingredient for the recipe")
 
         try:
             # Connect to SQLite3 database and execute the INSERT
@@ -160,6 +148,8 @@ def create_recipe():
 # Route to search recipes in the database
 # FALTA REVISAR PARA QUE BUSQUE ID RANDON+MS EN LUGAR DE GENERAR LOS NÜMEROS RANDOMS POR FUERA Y PASARLOS COMO IDS
 # PARA EVITAR QUE A VECES RESULTE EN MENOS RECETAS DE LAS ESPERADAS
+
+# CAMBIAR PARA QUE EN EL GET MUESTRE LOS NOMBRES DE INGREDIENTES Y UNIDADES Y NO LOS IDs
 @app.route("/search", methods=["GET", "POST"])
 def search():
     # User reached route via POST (as by submitting a form via POST)
@@ -203,6 +193,7 @@ def search():
     
 # Route to form used to edit recipe and save to the database the revised recipe
 # FALTA AGREGAR LA PARTE DE EDITAR LOS INGREDIENTES
+# CAMBIAR PARA QUE EN EL GET MUESTRE LOS NOMBRES DE INGREDIENTES Y UNIDADES Y NO LOS IDs
 @app.route("/edit_recipe", methods=["GET", "POST"])
 def edit_recipe():
     # User reached route via POST (as by submitting a form via POST)
@@ -252,7 +243,6 @@ def edit_recipe():
         # Close the connection
         db_close(cur)
 
-
         return render_template("edit_recipe.html", recipe=recipe, ing_used=ing_used)
 
 # Route to form used to delete a recipe
@@ -300,6 +290,7 @@ def delete_recipe():
     
 
 # Route to access the meal planner functionality
+# Add export and shopping list capabilities 
 @app.route("/create_plan", methods=["GET", "POST"])
 def create_plan():
     # User reached route via POST (as by submitting a form via POST)
