@@ -14,37 +14,40 @@ New recipe
             <input autofocus type="text" class="form-control" id="recipe_name" name="recipe_name">
         </div>
 
-        <p class="form-label">Ingredients</p>
+        <section id="ingredients">
+            <p class="form-label">Ingredients</p>
 
-        <div class="row mb-3" id="ing_1">
-            <div class="col-auto mb-2">
-                <label class="visually-hidden" for="quantity">Quantity</label>
-                <input type="number" class="form-control" id="quantity" placeholder="Cantidad" name="quantity_1">
-            </div>
-            <div class="col-auto mb-2">
-                <label class="visually-hidden" for="unit_1">Unit</label>
-                <select class="form-select" id="unit_1" name="unit_1">
-                    <option selected>Choose unit</option>
-                    {% for unit in units %}
+            <div class="row mb-2" id="ing_1">
+                <div class="col-auto mb-2">
+                    <label class="visually-hidden" for="quantity">Quantity</label>
+                    <input type="number" class="form-control" id="quantity" placeholder="Cantidad" name="quantity_1">
+                </div>
+                <div class="col-auto mb-2">
+                    <label class="visually-hidden" for="unit_1">Unit</label>
+                    <select class="form-select" id="unit_1" name="unit_1">
+                        <option selected>Choose unit</option>
+                        {% for unit in units %}
                         <option value="{{unit['id']}}">{{unit["name"]}}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-auto mb-2">
-                <label class="visually-hidden" for="ingredient_1">Ingredient</label>
-                <select class="form-select" id="ingredient_1" name="ingredient_1">
-                    <option selected>Choose ingredient</option>
-                    {% for ingredient in ingredients %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-auto mb-2">
+                    <label class="visually-hidden" for="ingredient_1">Ingredient</label>
+                    <select class="form-select" id="ingredient_1" name="ingredient_1">
+                        <option selected>Choose ingredient</option>
+                        {% for ingredient in ingredients %}
                         <option value="{{ingredient['id']}}">{{ingredient["name"]}}</option>
-                    {% endfor %}
-                </select>
+                        {% endfor %}
+                    </select>
+                </div>
+                <!-- <div class="col-auto mb-2">
+                    <button type="button" class="btn btn-secondary" >
+                        <i class="bi bi-plus-square"></i>
+                    </button>
+                </div> -->
             </div>
-            <!-- <div class="col-auto mb-2">
-                <button type="button" class="btn btn-secondary" >
-                    <i class="bi bi-plus-square"></i>
-                </button>
-            </div> -->
-        </div>
+        </section>
+
 
         <button class="btn btn-info" id="add_ing_input">Agregar ingrediente</button>
 
@@ -127,19 +130,16 @@ New recipe
                 </div>
                 <div class="col-auto mb-2">
                     <button type="button" class="btn btn-secondary" id="remove_ing_input_${number}">
-                        <i class="bi bi-dash-square"></i>
+                        <i class="bi bi-dash-square" id="remove_icon_${number}"></i>
                     </button>
                 </div>
 
                 `
-            )
+            )};
 
-        };
-
-
-        // Verify if the button is found
+        // Verify if the element is found
         if (add_ing_input) {
-            console.log("Button found!");
+            console.log("add_ing_input element found!");
 
             add_ing_input.addEventListener('click', function (event) {
                 // Prevent default behavior
@@ -156,64 +156,26 @@ New recipe
                 div.setAttribute('id', "ing_" + i);
                 console.log("div created");
                 div.innerHTML = ing_input(i);
-                console.log("listo innerhtml")
+                console.log("innerhtml added")
 
-                // Append the new <p> to the form
-                const element = document.querySelector("#ing_" + (i - 1));
-                element.appendChild(div);
+                // Append the new <div> to the form
+                document.querySelector("#ingredients").appendChild(div);
+
+                // Create function to remove input line
+                document.querySelector("#remove_ing_input_" + i).addEventListener('click', function(event) {
+                    // Prevent default behavior
+                    event.preventDefault();
+                    console.log(event.target.id);
+                    target_id = event.target.id;
+                    index = target_id.substring(target_id.length - 1);
+                    console.log(index);
+                    document.querySelector("#ing_" + index).remove();
+                })
             });
         } else {
             console.log("Button not found!");
         }
     });
 </script>
-
-<!-- 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log("Script loaded!"); // Check if the script is loaded
-
-        // Attach the event listener to the button
-        const add_ing = document.getElementById('add_ing_input');
-
-        i = 1;
-
-        function add_code (number) {
-            i += 1
-            return (
-                `<p id="id{{number}}">texto nuevo</p>`
-            )
-
-        }; 
-        
-        
-        // Verify if the button is found
-        if (add_ing) {
-            console.log("Button found!");
-
-            add_ing.addEventListener('click', function(event) {
-                // Prevent default behavior
-                event.preventDefault();
-
-                // Log to verify button click
-                console.log("Button clicked!");
-
-                // Create a new <p> element
-                const para = document.createElement("div");
-                div.classList.add("row");
-                div.classList.add("mb-3");
-                const newcode = add_code(i);
-                para.appendChild(newcode);
-
-                // Append the new <div> to the form
-                const element = document.getElementById("ing1");
-                element.appendChild(para);
-            });
-        } else {
-            console.log("Button not found!");
-        }
-    });
-</script> -->
-
 
 {% endblock %}

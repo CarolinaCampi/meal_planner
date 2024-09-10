@@ -136,6 +136,8 @@ def create_recipe():
 
 
 # Route to search recipes in the database
+# FALTA REVISAR PARA QUE BUSQUE ID RANDON+MS EN LUGAR DE GENERAR LOS NÜMEROS RANDOMS POR FUERA Y PASARLOS COMO IDS
+# PARA EVITAR QUE A VECES RESULTE EN MENOS RECETAS DE LAS ESPERADAS
 @app.route("/search", methods=["GET", "POST"])
 def search():
     # User reached route via POST (as by submitting a form via POST)
