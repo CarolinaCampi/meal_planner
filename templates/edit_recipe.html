@@ -11,46 +11,61 @@ Edit recipe
         <input name="recipe_id" type="hidden" value="{{ recipe[0]['id'] }}">
         <div class="mb-3">
             <label for="recipe_name" class="form-label">Recipe name</label>
-            <input autofocus type="text" class="form-control" id="recipe_name" name="recipe_name" value="{{ recipe[0]['name'] }}">
+            <input autofocus type="text" class="form-control" id="recipe_name" name="recipe_name"
+                value="{{ recipe[0]['name'] }}">
         </div>
 
-        <p class="form-label">Ingredients</p>
+        <section id="ingredients">
+            <p class="form-label">Ingredients</p>
 
-        <div class="row mb-3">
-            <div class="col-auto mb-2">
-                <label class="visually-hidden" for="autoSizingInput">Quantity</label>
-                <input type="number" class="form-control" id="quantity" placeholder="Cantidad" name="quantity_1">
+            {% for ing in ing_used %}
+            <div class="row mb-3" id="ing_{{ loop.index }}">
+                <div class="col-auto mb-2">
+                    <label class="visually-hidden" for="quantity_{{ loop.index }}">Quantity</label>
+                    <input type="number" class="form-control" id="quantity_{{ loop.index }}" placeholder="Cantidad" name="quantity_{{ loop.index }}"
+                        value="{{ ing["quantity"] }}">
+                </div>
+                <div class="col-auto mb-2">
+                    <label class="visually-hidden" for="unit_{{ loop.index }}">Unit</label>
+                    <select class="form-select" id="unit_{{ loop.index }}" name="unit_{{ loop.index }}">
+                        {% for unit in all_units %}
+                            {% if unit['id'] == ing['unit_id'] %}
+                                <option value="{{unit['id']}}" selected>{{unit["name"]}}</option>
+                            {% else %}
+                                <option value="{{unit['id']}}">{{unit["name"]}}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-auto mb-2">
+                    <label class="visually-hidden" for="ingredient_{{ loop.index }}">Ingredient</label>
+                    <select class="form-select" id="ingredient_{{ loop.index }}" name="ingredient_{{ loop.index }}">
+                        {% for ingredient in all_ingredients %}
+                            {% if ingredient['id'] == ing['ing_id'] %}
+                                <option value="{{ingredient['id']}}" selected>{{ingredient["name"]}}</option>
+                            {% else %}
+                                <option value="{{ingredient['id']}}">{{ingredient["name"]}}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-auto mb-2">
+                    <button type="button" class="btn btn-secondary" id="remove_ing_input_{{ loop.index }}">
+                        <i class="bi bi-dash-square" id="remove_icon_{{ loop.index }}"></i>
+                    </button>
+                </div>
             </div>
-            <div class="col-auto mb-2">
-                <label class="visually-hidden" for="unit_1">Unit</label>
-                <select class="form-select" id="unit_1" name="unit_1">
-                    <option selected>Choose unit</option>
-                    <option value="1">One</option>
-                    <option value="2">Two</option>
-                    <option value="3">Three</option>
-                </select>
-            </div>
-            <div class="col-auto mb-2">
-                <label class="visually-hidden" for="ingredient_1">Ingredient</label>
-                <select class="form-select" id="ingredient_1" name="ingredient_1">
-                    <option selected>Choose ingredient</option>
-                    <option value="1">One</option>
-                    <option value="2">Two</option>
-                    <option value="3">Three</option>
-                </select>
-            </div>
-            <!-- <div class="col-auto mb-2">
-                <button class="btn btn-secondary fw-bolder fs-6"><i class="bi bi-plus-square"></i></button>
-            </div> -->
+            {% endfor %}
+        </section>
 
-        </div>
-        
-        <button class="btn btn-info" id="add-ingredient-button">Agregar ingrediente</button>
+        <button type="button" class="btn btn-info" id="add_ing_input">Agregar ingrediente</button>
 
         <div class="mb-3">
             <label for="recipe_instructions" class="form-label">Instructions</label>
-            <textarea rows="7" class="form-control" id="recipe_instructions" name="recipe_instructions">{{ recipe[0]['instructions']}}</textarea>
+            <textarea rows="7" class="form-control" id="recipe_instructions"
+                name="recipe_instructions">{{ recipe[0]['instructions']}}</textarea>
         </div>
+
         <button type="submit" class="btn btn-primary">Editar</button>
 
     </form>
@@ -84,7 +99,98 @@ Edit recipe
 
 </div>
 
-
 {% endblock %}
 
-{% block script %} {% endblock %}
+{% block script %} 
+
+<script>
+    
+
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log("Script loaded!"); // Check if the script is loaded
+
+        // Check the amount of input field exiting after load
+        i = document.querySelectorAll("button i").length;
+
+        // Attach the event listener to the button
+        const add_ing_input = document.getElementById('add_ing_input');
+
+        function ing_input(number) {
+            console.log("i es " + i);
+            return (
+                `
+                <div class="col-auto mb-2">
+                    <label class="visually-hidden" for="quantity_${number}">Quantity</label>
+                    <input type="number" class="form-control" id="quantity_${number}" placeholder="Cantidad" name="quantity_${number}" min="0">
+                </div>
+                <div class="col-auto mb-2">
+                    <label class="visually-hidden" for="unit_${number}">Unit</label>
+                    <select class="form-select" id="unit_${number}" name="unit_${number}">
+                        <option selected>Choose unit</option>
+                        {% for unit in units %}
+                        <option value="{{unit['id']}}">{{unit["name"]}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-auto mb-2">
+                    <label class="visually-hidden" for="ingredient_${number}">Ingredient</label>
+                    <select class="form-select" id="ingredient_${number}" name="ingredient_${number}">
+                        <option selected>Choose ingredient</option>
+                        {% for ingredient in ingredients %}
+                        <option value="{{ingredient['id']}}">{{ingredient["name"]}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-auto mb-2">
+                    <button type="button" class="btn btn-secondary" id="remove_ing_input_${number}">
+                        <i class="bi bi-dash-square" id="remove_icon_${number}"></i>
+                    </button>
+                </div>
+
+                `
+            )};
+
+        // Verify if the element is found
+        if (add_ing_input) {
+            console.log("add_ing_input element found!");
+
+            add_ing_input.addEventListener('click', function (event) {
+                // Prevent default behavior
+                event.preventDefault();
+
+                // Log to verify button click
+                console.log("Button clicked!");
+
+                // Create a new <p> element
+                const div = document.createElement("div");
+                div.classList.add("row");
+                div.classList.add("mb-2");
+                i += 1;
+                div.setAttribute('id', "ing_" + i);
+                console.log("div created");
+                div.innerHTML = ing_input(i);
+                console.log("innerhtml added")
+
+                // Append the new <div> to the form
+                document.querySelector("#ingredients").appendChild(div);
+
+
+            });
+        } else {
+            console.log("Button not found!");
+        }
+
+        // Create function to remove input line
+        document.querySelector("#remove_ing_input_" + i).addEventListener('click', function(event) {
+            // Prevent default behavior
+            event.preventDefault();
+            console.log(event.target.id);
+            target_id = event.target.id;
+            index = target_id.substring(target_id.length - 1);
+            console.log(index);
+            document.querySelector("#ing_" + index).remove();
+        })
+    });
+</script>
+
+{% endblock %}

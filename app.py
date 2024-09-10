@@ -50,7 +50,7 @@ def index():
         # Execute the second SELECT query on 'ing_used' table
         cur.execute("SELECT ing_used.quantity, ingredients.name AS ing_name, units.name AS unit_name FROM ing_used JOIN ingredients ON ingredients.id = ing_used.ing_id JOIN units ON units.id = ing_used.unit_id WHERE ing_used.recipe_id = ?", (id,))
         ing_used = cur.fetchall()
-        print(ing_used)
+        
         # Close the connection
         db_close(cur)
 
@@ -148,8 +148,6 @@ def create_recipe():
 # Route to search recipes in the database
 # FALTA REVISAR PARA QUE BUSQUE ID RANDON+MS EN LUGAR DE GENERAR LOS NÜMEROS RANDOMS POR FUERA Y PASARLOS COMO IDS
 # PARA EVITAR QUE A VECES RESULTE EN MENOS RECETAS DE LAS ESPERADAS
-
-# CAMBIAR PARA QUE EN EL GET MUESTRE LOS NOMBRES DE INGREDIENTES Y UNIDADES Y NO LOS IDs
 @app.route("/search", methods=["GET", "POST"])
 def search():
     # User reached route via POST (as by submitting a form via POST)
@@ -164,7 +162,7 @@ def search():
         recipe = cur.fetchall()
 
         # Execute the second SELECT query on 'ing_used' table
-        cur.execute("SELECT * FROM ing_used WHERE recipe_id = ?", (id,))
+        cur.execute("SELECT ing_used.quantity, ingredients.name AS ing_name, units.name AS unit_name FROM ing_used JOIN ingredients ON ingredients.id = ing_used.ing_id JOIN units ON units.id = ing_used.unit_id WHERE ing_used.recipe_id = ?", (id,))
         ing_used = cur.fetchall()
 
         # Close the connection
@@ -236,14 +234,20 @@ def edit_recipe():
         cur.execute("SELECT * FROM recipes WHERE id = ?", (recipe_id,))
         recipe = cur.fetchall()
 
+        cur.execute("SELECT * FROM ingredients")
+        all_ingredients = cur.fetchall()
+
+        cur.execute("SELECT * FROM units")
+        all_units = cur.fetchall()
+
         # Execute the second SELECT query on 'ing_used' table
-        cur.execute("SELECT * FROM ing_used WHERE recipe_id = ?", (recipe_id,))
+        cur.execute("SELECT ing_used.quantity, ingredients.name AS ing_name, ingredients.id AS ing_id, units.name AS unit_name, units.id AS unit_id FROM ing_used JOIN ingredients ON ingredients.id = ing_used.ing_id JOIN units ON units.id = ing_used.unit_id WHERE ing_used.recipe_id = ?", (recipe_id,))
         ing_used = cur.fetchall()
 
         # Close the connection
         db_close(cur)
 
-        return render_template("edit_recipe.html", recipe=recipe, ing_used=ing_used)
+        return render_template("edit_recipe.html", recipe=recipe, ing_used=ing_used, all_ingredients=all_ingredients, all_units=all_units)
 
 # Route to form used to delete a recipe
 @app.route("/delete_recipe", methods=["GET", "POST"])
