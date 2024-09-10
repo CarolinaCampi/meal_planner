@@ -79,25 +79,27 @@ def create_recipe():
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
         # Access form data
+        result = request.form
+
         name = request.form.get("recipe_name")
         if not name:
             return render_template('result.html', msg = "Please complete a recipe name")
-        
+
         instructions = request.form.get("recipe_instructions")
         if not instructions:
             return render_template('result.html', msg = "Please complete instructions for the recipe")
 
-        quantity_1 = request.form.get("quantity_1")
-        if not quantity_1:
-            return render_template('result.html', msg = "Please complete an ingredient quantity")
+        # quantity_1 = request.form.get("quantity_1")
+        # if not quantity_1:
+        #     return render_template('result.html', msg = "Please complete an ingredient quantity")
         
-        unit_1 = request.form.get("unit_1")
-        if not unit_1:
-            return render_template('result.html', msg = "Please complete a unit for the ingredient")
+        # unit_1 = request.form.get("unit_1")
+        # if not unit_1:
+        #     return render_template('result.html', msg = "Please complete a unit for the ingredient")
         
-        ingredient_1 = request.form.get("ingredient_1")
-        if not ingredient_1:
-            return render_template('result.html', msg = "Please complete an ingredient for the recipe")
+        # ingredient_1 = request.form.get("ingredient_1")
+        # if not ingredient_1:
+        #     return render_template('result.html', msg = "Please complete an ingredient for the recipe")
 
         try:
             # Connect to SQLite3 database and execute the INSERT
@@ -108,7 +110,26 @@ def create_recipe():
                 row = cur.fetchone()
                 (inserted_id, ) = row if row else None
 
-                cur.execute("INSERT INTO ing_used (recipe_id, ing_id, quantity, unit_id) VALUES (?,?,?,?)", (inserted_id, ingredient_1, quantity_1, unit_1))
+                query_values = {}
+                for key, value in result.items():
+                    if key != "recipe_name" and key != "recipe_instructions":
+                        number = key.split("_")[1]
+                        category = key.split("_")[0]
+
+                        if number not in query_values:
+                            query_values[number] = [inserted_id, None, None, None]
+
+                        if category == "ingredient":
+                            query_values[number][1] = value
+
+                        if category == "quantity":
+                            query_values[number][2] = value
+                        
+                        if category == "unit":
+                            query_values[number][3] = value
+                
+                for row in query_values.values():
+                    cur.execute("INSERT INTO ing_used (recipe_id, ing_id, quantity, unit_id) VALUES (?,?,?,?)", tuple(row))
 
                 con.commit()
                 msg = "Record successfully added to database"
@@ -116,6 +137,7 @@ def create_recipe():
         except Exception as e:
             # Rollback in case of error
             con.rollback()
+            print(e)
             msg = "Error in the INSERT: " + str(e)
 
         finally:
@@ -323,6 +345,3 @@ def create_plan():
     else:
         return render_template("create_plan.html")
     
-
-
-

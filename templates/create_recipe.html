@@ -20,7 +20,7 @@ New recipe
             <div class="row mb-2" id="ing_1">
                 <div class="col-auto mb-2">
                     <label class="visually-hidden" for="quantity">Quantity</label>
-                    <input type="number" class="form-control" id="quantity" placeholder="Cantidad" name="quantity_1">
+                    <input type="number" class="form-control" id="quantity" placeholder="Cantidad" name="quantity_1" min="0">
                 </div>
                 <div class="col-auto mb-2">
                     <label class="visually-hidden" for="unit_1">Unit</label>
@@ -40,11 +40,6 @@ New recipe
                         {% endfor %}
                     </select>
                 </div>
-                <!-- <div class="col-auto mb-2">
-                    <button type="button" class="btn btn-secondary" >
-                        <i class="bi bi-plus-square"></i>
-                    </button>
-                </div> -->
             </div>
         </section>
 
@@ -107,25 +102,25 @@ New recipe
             return (
                 `
                 <div class="col-auto mb-2">
-                    <label class="visually-hidden" for="quantity">Quantity</label>
-                    <input type="number" class="form-control" id="quantity" placeholder="Cantidad" name="quantity_${number}">
+                    <label class="visually-hidden" for="quantity_${number}">Quantity</label>
+                    <input type="number" class="form-control" id="quantity_${number}" placeholder="Cantidad" name="quantity_${number}" min="0">
                 </div>
                 <div class="col-auto mb-2">
-                    <label class="visually-hidden" for="autoSizingSelect1">Unit</label>
-                    <select class="form-select" id="autoSizingSelect1" name="unit_${number}">
+                    <label class="visually-hidden" for="unit_${number}">Unit</label>
+                    <select class="form-select" id="unit_${number}" name="unit_${number}">
                         <option selected>Choose unit</option>
-                        <option value="1">One</option>
-                        <option value="2">Two</option>
-                        <option value="3">Three</option>
+                        {% for unit in units %}
+                        <option value="{{unit['id']}}">{{unit["name"]}}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 <div class="col-auto mb-2">
-                    <label class="visually-hidden" for="autoSizingSelect2">Ingredient</label>
-                    <select class="form-select" id="autoSizingSelect2" name="ingredient_${number}">
+                    <label class="visually-hidden" for="ingredient_${number}">Ingredient</label>
+                    <select class="form-select" id="ingredient_${number}" name="ingredient_${number}">
                         <option selected>Choose ingredient</option>
-                        <option value="1">One</option>
-                        <option value="2">Two</option>
-                        <option value="3">Three</option>
+                        {% for ingredient in ingredients %}
+                        <option value="{{ingredient['id']}}">{{ingredient["name"]}}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 <div class="col-auto mb-2">
