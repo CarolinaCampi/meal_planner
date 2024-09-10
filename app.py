@@ -87,11 +87,28 @@ def create_recipe():
         if not instructions:
             return render_template('result.html', msg = "Please complete instructions for the recipe")
 
+        quantity_1 = request.form.get("quantity_1")
+        if not quantity_1:
+            return render_template('result.html', msg = "Please complete an ingredient quantity")
+        
+        unit_1 = request.form.get("unit_1")
+        if not unit_1:
+            return render_template('result.html', msg = "Please complete a unit for the ingredient")
+        
+        ingredient_1 = request.form.get("ingredient_1")
+        if not ingredient_1:
+            return render_template('result.html', msg = "Please complete an ingredient for the recipe")
+
         try:
             # Connect to SQLite3 database and execute the INSERT
             with sqlite3.connect('meal_planner.db') as con:
                 cur = con.cursor()
-                cur.execute("INSERT INTO recipes (name, instructions) VALUES (?,?)", (name, instructions,))
+                cur.execute("INSERT INTO recipes (name, instructions) VALUES (?,?) RETURNING id", (name, instructions,))
+                # get the returning id from the inserted row
+                row = cur.fetchone()
+                (inserted_id, ) = row if row else None
+
+                cur.execute("INSERT INTO ing_used (recipe_id, ing_id, quantity, unit_id) VALUES (?,?,?,?)", (inserted_id, ingredient_1, quantity_1, unit_1))
 
                 con.commit()
                 msg = "Record successfully added to database"

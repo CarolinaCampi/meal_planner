@@ -16,26 +16,26 @@ New recipe
 
         <p class="form-label">Ingredients</p>
 
-        <div class="row mb-3" id="ing1">
+        <div class="row mb-3" id="ing_1">
             <div class="col-auto mb-2">
                 <label class="visually-hidden" for="quantity">Quantity</label>
                 <input type="number" class="form-control" id="quantity" placeholder="Cantidad" name="quantity_1">
             </div>
             <div class="col-auto mb-2">
-                <label class="visually-hidden" for="autoSizingSelect1">Unit</label>
-                <select class="form-select" id="autoSizingSelect1" name="unit_1">
+                <label class="visually-hidden" for="unit_1">Unit</label>
+                <select class="form-select" id="unit_1" name="unit_1">
                     <option selected>Choose unit</option>
                     {% for unit in units %}
-                        <option value="{{unit['name']}}">{{unit["name"]}}</option>
+                        <option value="{{unit['id']}}">{{unit["name"]}}</option>
                     {% endfor %}
                 </select>
             </div>
             <div class="col-auto mb-2">
-                <label class="visually-hidden" for="autoSizingSelect2">Ingredient</label>
-                <select class="form-select" id="autoSizingSelect2" name="ingredient_1">
+                <label class="visually-hidden" for="ingredient_1">Ingredient</label>
+                <select class="form-select" id="ingredient_1" name="ingredient_1">
                     <option selected>Choose ingredient</option>
                     {% for ingredient in ingredients %}
-                        <option value="{{ingredient['name']}}">{{ingredient["name"]}}</option>
+                        <option value="{{ingredient['id']}}">{{ingredient["name"]}}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -46,7 +46,7 @@ New recipe
             </div> -->
         </div>
 
-        <button class="btn btn-info" id="add-ingredient-button">Agregar ingrediente</button>
+        <button class="btn btn-info" id="add_ing_input">Agregar ingrediente</button>
 
         <div class="mb-3">
             <label for="recipe_instructions" class="form-label">Instructions</label>
@@ -97,9 +97,9 @@ New recipe
         console.log("Script loaded!"); // Check if the script is loaded
 
         // Attach the event listener to the button
-        const addButton = document.getElementById('add-ingredient-button');
+        const add_ing_input = document.getElementById('add_ing_input');
 
-        function ing_code(number) {
+        function ing_input(number) {
             console.log("i es" + i);
             return (
                 `
@@ -126,7 +126,7 @@ New recipe
                     </select>
                 </div>
                 <div class="col-auto mb-2">
-                    <button type="button" class="btn btn-secondary" id="add-ingredient-button">
+                    <button type="button" class="btn btn-secondary" id="remove_ing_input_${number}">
                         <i class="bi bi-dash-square"></i>
                     </button>
                 </div>
@@ -138,10 +138,10 @@ New recipe
 
 
         // Verify if the button is found
-        if (addButton) {
+        if (add_ing_input) {
             console.log("Button found!");
 
-            addButton.addEventListener('click', function (event) {
+            add_ing_input.addEventListener('click', function (event) {
                 // Prevent default behavior
                 event.preventDefault();
 
@@ -152,13 +152,14 @@ New recipe
                 const div = document.createElement("div");
                 div.classList.add("row");
                 div.classList.add("mb-2");
-                console.log("div created")
                 i += 1;
-                div.innerHTML = ing_code(i);
+                div.setAttribute('id', "ing_" + i);
+                console.log("div created");
+                div.innerHTML = ing_input(i);
                 console.log("listo innerhtml")
 
                 // Append the new <p> to the form
-                const element = document.querySelector("#ing1");
+                const element = document.querySelector("#ing_" + (i - 1));
                 element.appendChild(div);
             });
         } else {
@@ -173,7 +174,7 @@ New recipe
         console.log("Script loaded!"); // Check if the script is loaded
 
         // Attach the event listener to the button
-        const add_ing = document.getElementById('add-ingredient-button');
+        const add_ing = document.getElementById('add_ing_input');
 
         i = 1;
 

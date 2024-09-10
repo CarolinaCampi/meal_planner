@@ -14,7 +14,7 @@ Edit recipe
             <input autofocus type="text" class="form-control" id="recipe_name" name="recipe_name" value="{{ recipe[0]['name'] }}">
         </div>
 
-        <!-- <p class="form-label">Ingredients</p>
+        <p class="form-label">Ingredients</p>
 
         <div class="row mb-3">
             <div class="col-auto mb-2">
@@ -22,8 +22,8 @@ Edit recipe
                 <input type="number" class="form-control" id="quantity" placeholder="Cantidad" name="quantity_1">
             </div>
             <div class="col-auto mb-2">
-                <label class="visually-hidden" for="autoSizingSelect1">Unit</label>
-                <select class="form-select" id="autoSizingSelect1" name="unit_1">
+                <label class="visually-hidden" for="unit_1">Unit</label>
+                <select class="form-select" id="unit_1" name="unit_1">
                     <option selected>Choose unit</option>
                     <option value="1">One</option>
                     <option value="2">Two</option>
@@ -31,19 +31,21 @@ Edit recipe
                 </select>
             </div>
             <div class="col-auto mb-2">
-                <label class="visually-hidden" for="autoSizingSelect2">Ingredient</label>
-                <select class="form-select" id="autoSizingSelect2" name="ingredient_1">
+                <label class="visually-hidden" for="ingredient_1">Ingredient</label>
+                <select class="form-select" id="ingredient_1" name="ingredient_1">
                     <option selected>Choose ingredient</option>
                     <option value="1">One</option>
                     <option value="2">Two</option>
                     <option value="3">Three</option>
                 </select>
             </div>
-            <div class="col-auto mb-2">
+            <!-- <div class="col-auto mb-2">
                 <button class="btn btn-secondary fw-bolder fs-6"><i class="bi bi-plus-square"></i></button>
-            </div>
+            </div> -->
 
-        </div> -->
+        </div>
+        
+        <button class="btn btn-info" id="add-ingredient-button">Agregar ingrediente</button>
 
         <div class="mb-3">
             <label for="recipe_instructions" class="form-label">Instructions</label>
