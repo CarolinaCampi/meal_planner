@@ -7,26 +7,27 @@ Edit recipe
 {% block main %}
 <div class="container-fluid">
     <h3 class="pb-3">Editar receta</h3>
+    <!-- RECIPE NAME -->
     <form action="/edit_recipe" method="post" class="mb-4">
         <input name="recipe_id" type="hidden" value="{{ recipe[0]['id'] }}">
         <div class="mb-3">
-            <label for="recipe_name" class="form-label">Recipe name</label>
+            <label for="recipe_name" class="form-label">Nombre</label>
             <input autofocus type="text" class="form-control" id="recipe_name" name="recipe_name"
                 value="{{ recipe[0]['name'] }}">
         </div>
-
+    <!-- INGREDIENTS -->
         <section id="ingredients">
-            <p class="form-label">Ingredients</p>
+            <p class="form-label">Ingredientes</p>
 
             {% for ing in ing_used %}
             <div class="row mb-3" id="ing_{{ loop.index }}">
                 <div class="col-auto mb-2">
-                    <label class="visually-hidden" for="quantity_{{ loop.index }}">Quantity</label>
+                    <label class="visually-hidden" for="quantity_{{ loop.index }}">Cantidad</label>
                     <input type="number" class="form-control" id="quantity_{{ loop.index }}" placeholder="Cantidad" name="quantity_{{ loop.index }}"
                         value="{{ ing["quantity"] }}">
                 </div>
                 <div class="col-auto mb-2">
-                    <label class="visually-hidden" for="unit_{{ loop.index }}">Unit</label>
+                    <label class="visually-hidden" for="unit_{{ loop.index }}">Unidad</label>
                     <select class="form-select" id="unit_{{ loop.index }}" name="unit_{{ loop.index }}">
                         {% for unit in all_units %}
                             {% if unit['id'] == ing['unit_id'] %}
@@ -38,7 +39,7 @@ Edit recipe
                     </select>
                 </div>
                 <div class="col-auto mb-2">
-                    <label class="visually-hidden" for="ingredient_{{ loop.index }}">Ingredient</label>
+                    <label class="visually-hidden" for="ingredient_{{ loop.index }}">Ingrediente</label>
                     <select class="form-select" id="ingredient_{{ loop.index }}" name="ingredient_{{ loop.index }}">
                         {% for ingredient in all_ingredients %}
                             {% if ingredient['id'] == ing['ing_id'] %}
@@ -59,9 +60,9 @@ Edit recipe
         </section>
 
         <button type="button" class="btn btn-info mb-3" id="add_ing_input">Agregar ingrediente</button>
-
+    <!-- INSTRUCTIONS -->
         <div class="mb-3">
-            <label for="recipe_instructions" class="form-label">Instructions</label>
+            <label for="recipe_instructions" class="form-label">Instrucciones</label>
             <textarea rows="7" class="form-control" id="recipe_instructions"
                 name="recipe_instructions">{{ recipe[0]['instructions']}}</textarea>
         </div>

@@ -146,8 +146,6 @@ def create_recipe():
 
 
 # Route to search recipes in the database
-# FALTA REVISAR PARA QUE BUSQUE ID RANDON+MS EN LUGAR DE GENERAR LOS NÜMEROS RANDOMS POR FUERA Y PASARLOS COMO IDS
-# PARA EVITAR QUE A VECES RESULTE EN MENOS RECETAS DE LAS ESPERADAS
 @app.route("/search", methods=["GET", "POST"])
 def search():
     # User reached route via POST (as by submitting a form via POST)
@@ -190,7 +188,7 @@ def search():
         return render_template("search.html", recipes=recipes)
     
 # Route to form used to edit recipe and save to the database the revised recipe
-# FALTA AGREGAR LA PARTE DE EDITAR LOS INGREDIENTES PARA QUE SE CARGUEN EN LA DB AL DARLE EDITAR
+# FALTA AGREGAR NUEVOS INGREDIENTES O UNIDADES (IDEM CREATE_RECIPE)
 @app.route("/edit_recipe", methods=["GET", "POST"])
 def edit_recipe():
     # User reached route via POST (as by submitting a form via POST)
@@ -335,32 +333,15 @@ def create_plan():
 
         # Connect to the SQLite3 datatabase
         cur = db_connect()
+
         # Execute the SELECT query
-        cur.execute("SELECT COUNT(*) FROM recipes")
-        recipes_number = cur.fetchall()
-        
-        recipes_number = recipes_number[0]["COUNT(*)"]
-
-        if meal_number > recipes_number:
-            msg = "The number pf meals requested is greater than the recipes in the database, " + recipes_number
-            return render_template("result.html", msg=msg)
-
-        unique_ids = random.sample(range(0, recipes_number), meal_number)
-        print(unique_ids)
-
-        placeholders = ','.join('?' for _ in unique_ids)
-        query = f"SELECT * FROM recipes WHERE id IN ({placeholders})"
-
-        cur.execute(query, unique_ids)
-
+        cur.execute("SELECT * FROM recipes ORDER BY random() LIMIT ?", (meal_number,))
         recipes = cur.fetchall()
 
         # Close the connection
         db_close(cur)
 
         return render_template("create_plan.html", recipes=recipes)
-
-
     else:
         return render_template("create_plan.html")
     

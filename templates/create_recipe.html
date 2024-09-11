@@ -6,35 +6,35 @@ New recipe
 
 {% block main %}
 <div class="container-fluid">
-    <h3 class="pb-3">New recipe</h3>
+    <h3 class="pb-3">Nueva receta</h3>
     <form action="/create_recipe" method="post" class="mb-4">
-
+<!-- RECIPE NAME -->
         <div class="mb-3">
-            <label for="recipe_name" class="form-label">Recipe name</label>
+            <label for="recipe_name" class="form-label">Nombre</label>
             <input autofocus type="text" class="form-control" id="recipe_name" name="recipe_name">
         </div>
-
+<!-- INGREDIENTS -->
         <section id="ingredients">
-            <p class="form-label">Ingredients</p>
+            <p class="form-label">Ingredientes</p>
 
             <div class="row mb-2" id="ing_1">
                 <div class="col-auto mb-2">
-                    <label class="visually-hidden" for="quantity">Quantity</label>
+                    <label class="visually-hidden" for="quantity">Cantidad</label>
                     <input type="number" class="form-control" id="quantity" placeholder="Cantidad" name="quantity_1" min="0">
                 </div>
                 <div class="col-auto mb-2">
-                    <label class="visually-hidden" for="unit_1">Unit</label>
+                    <label class="visually-hidden" for="unit_1">Unidad</label>
                     <select class="form-select" id="unit_1" name="unit_1">
-                        <option selected>Choose unit</option>
+                        <option selected>Elegir unidad</option>
                         {% for unit in units %}
                         <option value="{{unit['id']}}">{{unit["name"]}}</option>
                         {% endfor %}
                     </select>
                 </div>
                 <div class="col-auto mb-2">
-                    <label class="visually-hidden" for="ingredient_1">Ingredient</label>
+                    <label class="visually-hidden" for="ingredient_1">Ingrediente</label>
                     <select class="form-select" id="ingredient_1" name="ingredient_1">
-                        <option selected>Choose ingredient</option>
+                        <option selected>Elegir ingrediente</option>
                         {% for ingredient in ingredients %}
                         <option value="{{ingredient['id']}}">{{ingredient["name"]}}</option>
                         {% endfor %}
@@ -43,11 +43,10 @@ New recipe
             </div>
         </section>
 
-
         <button class="btn btn-info" id="add_ing_input">Agregar ingrediente</button>
-
+<!-- INSTRUCTIONS -->
         <div class="mb-3">
-            <label for="recipe_instructions" class="form-label">Instructions</label>
+            <label for="recipe_instructions" class="form-label">Instrucciones</label>
             <textarea rows="7" class="form-control" id="recipe_instructions" name="recipe_instructions"></textarea>
         </div>
         <button type="submit" class="btn btn-primary">Create</button>
