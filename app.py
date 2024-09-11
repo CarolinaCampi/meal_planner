@@ -190,12 +190,13 @@ def search():
         return render_template("search.html", recipes=recipes)
     
 # Route to form used to edit recipe and save to the database the revised recipe
-# FALTA AGREGAR LA PARTE DE EDITAR LOS INGREDIENTES
-# CAMBIAR PARA QUE EN EL GET MUESTRE LOS NOMBRES DE INGREDIENTES Y UNIDADES Y NO LOS IDs
+# FALTA AGREGAR LA PARTE DE EDITAR LOS INGREDIENTES PARA QUE SE CARGUEN EN LA DB AL DARLE EDITAR
 @app.route("/edit_recipe", methods=["GET", "POST"])
 def edit_recipe():
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
+        result = request.form
+
         recipe_id = request.form.get("recipe_id")
 
         recipe_name = request.form.get("recipe_name")
@@ -211,7 +212,30 @@ def edit_recipe():
             with sqlite3.connect('meal_planner.db') as con:
                 cur = con.cursor()
                 cur.execute("UPDATE recipes SET name = ?, instructions = ? WHERE id = ?", (recipe_name, instructions, recipe_id))
+                # Delete exiting ingredients
+                cur.execute("DELETE FROM ing_used WHERE recipe_id = ?", (recipe_id,))
+                # Insert new ingredients
+                query_values = {}
+                for key, value in result.items():
+                    if key != "recipe_name" and key != "recipe_instructions" and key != "recipe_id":
+                        number = key.split("_")[1]
+                        category = key.split("_")[0]
 
+                        if number not in query_values:
+                            query_values[number] = [recipe_id, None, None, None]
+
+                        if category == "ingredient":
+                            query_values[number][1] = value
+
+                        if category == "quantity":
+                            query_values[number][2] = value
+                        
+                        if category == "unit":
+                            query_values[number][3] = value
+                
+                for row in query_values.values():
+                    cur.execute("INSERT INTO ing_used (recipe_id, ing_id, quantity, unit_id) VALUES (?,?,?,?)", tuple(row))
+                
                 con.commit()
                 msg = "Record successfully edited in the database"
         
