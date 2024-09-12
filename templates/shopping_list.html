@@ -1,31 +1,87 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Shopping List
+Shopping List
 {% endblock %}
 
 {% block main %}
 
-    <h1 class="text-center">Shopping List</h1>
-    <section class="container-fluid">
-        <h4>Recipes list</h4>
-        <ol> 
-            {% for recipe in recipes %}
+<h1 class="text-center mb-5">Shopping List</h1>
+<section class="container-fluid">
+    <div class="card mb-5">
+        <div class="card-header d-flex justify-content-between">
+            <h5 class="m-0">Recipes List</h5>
+            <button id="copy-recipes" type="button" class="btn btn-outline-secondary btn-sm"><i
+                    class="bi bi-clipboard"></i><i class="bi bi-clipboard-check d-none"></i></button>
+        </div>
+        <div class="card-body">
+            <ol id="recipes-list" class="card-text">
+                {% for recipe in recipes %}
                 <li>{{ recipe["name"] }}</li>
-            {% endfor %}
-        </ol>
+                {% endfor %}
+            </ol>
+        </div>
+    </div>
 
-        <h4>Shopping List</h4>
-        <ul>
-            {% for ing in ing_used %}
-                <li>{{ ing["quantity"] }} {{ ing["unit_name"]}} de {{ ing["ing_name"]}}</li>
-            {% endfor %}
-        </ul>
-        
-    </section>
-    
+    <div class="card mb-5">
+        <div class="card-header d-flex justify-content-between">
+            <h5 class="m-0">Shopping List</h5>
+            <button id="copy-shopping" type="button" class="btn btn-outline-secondary btn-sm"><i
+                    class="bi bi-clipboard"></i><i class="bi bi-clipboard-check d-none"></i></button>
+        </div>
+
+        <div class="card-body">
+            <ul id="shopping-list" class="card-text">
+                {% for ing in ing_used %}
+                <li>{{ ing["quantity"] }} {{ ing["unit_name"] }} de {{ ing["ing_name"] }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</section>
+
 {% endblock %}
 
 {% block script %}
+<script>
+    // https://www.freecodecamp.org/news/copy-text-to-clipboard-javascript/
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log("Script loaded!"); // Check if the script is loaded
+        
+        function copy_to_clipboard(button_id, text_to_copy_id) {
+            const copy_button = document.querySelector(button_id);
+
+            if (copy_button) {
+            console.log("copy_recipes_button element found!");
+
+            copy_button.addEventListener('click', function () {
+                // Use textContent to get only the text, not HTML
+                let text = document.querySelector(text_to_copy_id).textContent;
+                console.log(text);
+
+                const copyContent = async () => {
+                    try {
+                        await navigator.clipboard.writeText(text);
+                        console.log('Content copied to clipboard');
+                    } catch (err) {
+                        console.error('Failed to copy: ', err);
+                    }
+                }
+
+                // Call the copyContent function
+                copyContent();
+            });
+        } else {
+            console.log("Button not found! :(")
+        }
+    }
+
+    copy_to_clipboard("#copy-recipes", "#recipes-list");
+    copy_to_clipboard("#copy-shopping", "#shopping-list");
+
+    });
+
+        
+</script>
 
 {% endblock %}
