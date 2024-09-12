@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Shopping List
+{% endblock %}
+
+{% block main %}
+
+    <h1 class="text-center">Shopping List</h1>
+    <section class="container-fluid">
+        <h4>Recipes list</h4>
+        <ol> 
+            {% for recipe in recipes %}
+                <li>{{ recipe["name"] }}</li>
+            {% endfor %}
+        </ol>
+
+        <h4>Shopping List</h4>
+        <ul>
+            {% for ing in ing_used %}
+                <li>{{ ing["quantity"] }} {{ ing["unit_name"]}} de {{ ing["ing_name"]}}</li>
+            {% endfor %}
+        </ul>
+        
+    </section>
+    
+{% endblock %}
+
+{% block script %}
+
+{% endblock %}

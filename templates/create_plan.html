@@ -9,7 +9,7 @@
         <h1 class="text-center mb-5">Crear un plan de comidas</h1>
 
         <form action="/create_plan" method="post">
-            <div class="row justify-content-center">
+            <div class="row justify-content-center align-items-center">
                 <label for="meal_number" class="col-sm-2 col-form-label mb-2">Cuantas comidas?</label>
                 <div class="col-sm-2">
                     <input type="number" class="form-control mb-2" id="meal_number" name="meal_number" min="1">
@@ -17,18 +17,42 @@
                 <div class="col-auto">
                     <button class="btn btn-warning mb-2">Crear</button>
                 </div>
-                
             </div>
         </form>
-        <form action="/RUTAAA" method="post" class="d-grid gap-2 d-md-flex justify-content-md-end">
-            <input name="recipes" type="hidden" value="{{ recipes }}">
-            <button class="btn btn-info mb-2"><i class="bi bi-card-checklist"></i> Lista de compras</button>
+        <form action="/shopping_list" method="post" class="d-grid gap-2 d-md-flex justify-content-md-end">
+            {% for recipe in recipes %}
+                <input name="id_{{ loop.index }}" type="hidden" value="{{ recipe['id'] }}">
+            {% endfor %}
+            <button type="submit" class="btn btn-info mb-2"><i class="bi bi-card-checklist"></i> Lista de compras</button>
         </form>
     </section>
 
 
     <section class="container-fluid text-center">
-        <div class="row">
+        <table class="table align-middle table-success table-striped table-hover">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Nombre</th>
+                <th scope="col">Link</th>
+              </tr>
+            </thead>
+            <tbody class="table-group-divider">
+                {% for recipe in recipes %}
+                <tr>
+                    <th scope="row">{{ loop.index }}</th>
+                    <td>{{ recipe["name"] }}</td>
+                    <td>
+                        <form action="/search" method="post">
+                            <input name="id" type="hidden" value="{{ recipe['id'] }}">
+                            <button type="submit" class="btn btn-success">Receta</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+          </table>
+        <!-- <div class="row">
             {% for recipe in recipes %}
                 <div class="col-md-3 my-3">
                     <div class="card">
@@ -42,7 +66,7 @@
                     </div>
                 </div>
             {% endfor %}
-        </div>
+        </div> -->
     </section>
 {% endblock %}
 
