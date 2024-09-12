@@ -346,12 +346,11 @@ def create_plan():
     else:
         return render_template("create_plan.html")
     
-@app.route("/shopping_list", methods=["GET", "POST"])
+# See shopping list and copy to clipboard
+@app.route("/shopping_list", methods=["POST"])
 def shopping_list():
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
-    #     print("shopping list post")
-    # else:
         recipes_id = request.form
         print(recipes_id)
 
@@ -385,3 +384,33 @@ def shopping_list():
         db_close(cur)
 
         return render_template("shopping_list.html", recipes=recipes, ing_used=ing_used)
+    
+# See shopping list and copy to clipboard
+@app.route("/create_ingredient", methods=["POST"])
+def create_ingredient():
+    # User reached route via POST (as by submitting a form via POST)
+    if request.method == "POST":
+        new_ing = request.form.get("new_ing")
+
+        if not new_ing:
+            return render_template("result.html", msg="Please input a valid ingredient.")
+        
+
+        try:
+            # Connect to SQLite3 database and execute the INSERT
+            with sqlite3.connect('meal_planner.db') as con:
+                cur = con.cursor()
+                cur.execute("INSERT INTO ingredients (name) VALUES (?)", (new_ing,))
+                con.commit()
+                msg = "Record successfully edited in the database"
+        
+        except Exception as e:
+            # Rollback in case of error
+            con.rollback()
+            msg = "Error in the UPDATE: " + str(e)
+            print(e)
+
+        finally:
+            con.close()
+            # Send the transaction message to result.html
+            return redirect('create_recipe') 
