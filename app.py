@@ -385,7 +385,37 @@ def shopping_list():
 
         return render_template("shopping_list.html", recipes=recipes, ing_used=ing_used)
     
-# See shopping list and copy to clipboard
+# Create new unit
+@app.route("/create_unit", methods=["POST"])
+def create_unit():
+    # User reached route via POST (as by submitting a form via POST)
+    if request.method == "POST":
+        new_unit = request.form.get("new_unit")
+
+        if not new_unit:
+            return render_template("result.html", msg="Please input a valid ingredient.")
+        
+        try:
+            # Connect to SQLite3 database and execute the INSERT
+            with sqlite3.connect('meal_planner.db') as con:
+                cur = con.cursor()
+                cur.execute("INSERT INTO units (name) VALUES (?)", (new_unit,))
+                con.commit()
+                # msg = "Record successfully edited in the database"
+        
+        except Exception as e:
+            # Rollback in case of error
+            con.rollback()
+            # msg = "Error in the UPDATE: " + str(e)
+            print(e)
+
+        finally:
+            con.close()
+            # Send the transaction message to result.html
+            return redirect('create_recipe') 
+
+
+# Create new ingredient
 @app.route("/create_ingredient", methods=["POST"])
 def create_ingredient():
     # User reached route via POST (as by submitting a form via POST)
