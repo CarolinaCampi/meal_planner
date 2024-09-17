@@ -1,42 +1,90 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Recipe
+Recipe
 {% endblock %}
 
 {% block main %}
 
-    <h2>{{ recipe[0]["name"] }}</h2>
-    <h3>Ingredientes</h3>
-    <!-- ADD INGREDIENTS -->
-        <ul>
-            {% for ing in ing_used %}
-                <li>{{ ing["quantity"] }} {{ ing["unit_name"] }} de {{ ing["ing_name"] }} </li>
-            {% endfor %}
-        </ul>
-    
-    <h3>Instrucciones</h3>
-    <p>{{ recipe[0]["instructions"] }}</p>
+<section class="container-fluid">
+    <div id="recipe" class="card mb-3">
+        <div class="card-header d-flex justify-content-between">
+            <h4 class="m-0">{{ recipe[0]["name"] }}</h4>
+            <button id="copy-recipe" type="button" class="btn btn-outline-secondary btn-sm"><i
+                    class="bi bi-clipboard"></i><i class="bi bi-clipboard-check d-none"></i></button>
+        </div>
+        <div class="card-body">
+            <div class="card-text">
+                <h5>Ingredientes</h5>
+                <ul>
+                    {% for ing in ing_used %}
+                    <li>{{ ing["quantity"] }} {{ ing["unit_name"] }} de {{ ing["ing_name"] }} </li>
+                    {% endfor %}
+                </ul>
 
-    <form action="/RUTAAA" method="get" class="mb-3">
-        <input name="recipe_id" type="hidden" value="{{ recipe[0]['id'] }}">
-        <button type="submit" class="btn btn-success"><i class="bi bi-printer"></i> Exportar</button>
-    </form>
+                <h5>Instrucciones</h5>
+                <p>{{ recipe[0]["instructions"] }}</p>
 
-    <form action="/edit_recipe" method="get" class="mb-3">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Action buttons -->
+<section class="container-fluid d-inline-flex justify-content-between">
+    <form action="/edit_recipe" method="get" class="mb-3 d-inline">
         <input name="recipe_id" type="hidden" value="{{ recipe[0]['id'] }}">
         <button type="submit" class="btn btn-info"><i class="bi bi-pencil"></i> Editar</button>
     </form>
 
-    <form action="/delete_recipe" method="get" class="mb-3">
+    <form action="/delete_recipe" method="get" class="mb-3 d-inline">
         <input name="recipe_id" type="hidden" value="{{ recipe[0]['id'] }}">
         <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Eliminar</button>
     </form>
+</section>
+
 
 {% endblock %}
 
 
 {% block script %}
+<script>
+    // https://www.freecodecamp.org/news/copy-text-to-clipboard-javascript/
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log("Script loaded!"); // Check if the script is loaded
 
+        function copy_to_clipboard(button_id, text_to_copy_id) {
+            const copy_button = document.querySelector(button_id);
+
+            if (copy_button) {
+                console.log("copy_recipe_button element found!");
+
+                copy_button.addEventListener('click', function () {
+                    // Use textContent to get only the text, not HTML
+                    let text = document.querySelector(text_to_copy_id).textContent;
+                    console.log(text);
+
+                    const copyContent = async () => {
+                        try {
+                            await navigator.clipboard.writeText(text);
+                            console.log('Content copied to clipboard');
+                        } catch (err) {
+                            console.error('Failed to copy: ', err);
+                        }
+                    }
+
+                    // Call the copyContent function
+                    copyContent();
+                });
+            } else {
+                console.log("Button not found! :(")
+            }
+        }
+
+        copy_to_clipboard("#copy-recipe", "#recipe");
+
+    });
+
+</script>
 
 {% endblock %}
