@@ -6,18 +6,18 @@
 
 {% block main %}
 
-    <h1 class="mb-5 text-center">Recetas</h1>
+    
 
     <section class="container-fluid text-center">
+        <h1 class="mb-5">Recetas</h1>
         <div class="row">
             {% for row in rows %}
-                <div class="col-md-3 my-3">
+                <div class="col-md-4 col-sm-6 my-3 align-self-center">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title mb-3">{{ row["name"] }}</h5>
                             <form action="/" method="post">
                                 <input name="id" type="hidden" value="{{ row['id'] }}">
-                                <button type="submit" class="btn btn-primary stretched-link">Receta</button>
+                                <button type="submit" class="btn stretched-link"><h5 class="card-title">{{ row["name"] }}</h5></button>
                             </form>
                         </div>
                     </div>
