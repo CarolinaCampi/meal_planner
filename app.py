@@ -134,10 +134,10 @@ def create_recipe():
                
     else:    
         cur = db_connect()
-        cur.execute("SELECT * FROM ingredients")
+        cur.execute("SELECT * FROM ingredients ORDER BY name ASC")
         ingredients = cur.fetchall()
 
-        cur.execute("SELECT * FROM units")
+        cur.execute("SELECT * FROM units ORDER BY name ASC")
         units = cur.fetchall()
 
         db_close(cur)
@@ -249,16 +249,19 @@ def edit_recipe():
     else:
         recipe_id = request.args.get("recipe_id")
 
+        # Remember which recipes is being edited
+        session["recipe_id"] = recipe_id
+
         # Connect to the SQLite3 datatabase
         cur = db_connect()
         # Execute the SELECT query
         cur.execute("SELECT * FROM recipes WHERE id = ?", (recipe_id,))
         recipe = cur.fetchall()
 
-        cur.execute("SELECT * FROM ingredients")
+        cur.execute("SELECT * FROM ingredients ORDER BY name ASC")
         all_ingredients = cur.fetchall()
 
-        cur.execute("SELECT * FROM units")
+        cur.execute("SELECT * FROM units ORDER BY name ASC")
         all_units = cur.fetchall()
 
         # Execute the second SELECT query on 'ing_used' table
@@ -386,6 +389,7 @@ def shopping_list():
         return render_template("shopping_list.html", recipes=recipes, ing_used=ing_used)
     
 # Create new unit
+# REVISAR CUANDO ESTAMOS EN EDIT_RECIPE
 @app.route("/create_unit", methods=["POST"])
 def create_unit():
     # User reached route via POST (as by submitting a form via POST)
@@ -416,11 +420,13 @@ def create_unit():
 
 
 # Create new ingredient
+# REVISAR CUANDO ESTAMOS EN EDIT_RECIPE
 @app.route("/create_ingredient", methods=["POST"])
 def create_ingredient():
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
         new_ing = request.form.get("new_ing")
+        # recipe_id = request.form.get("recipe_id")
 
         if not new_ing:
             return render_template("result.html", msg="Please input a valid ingredient.")
@@ -432,12 +438,12 @@ def create_ingredient():
                 cur = con.cursor()
                 cur.execute("INSERT INTO ingredients (name) VALUES (?)", (new_ing,))
                 con.commit()
-                msg = "Record successfully edited in the database"
+                # msg = "Record successfully edited in the database"
         
         except Exception as e:
             # Rollback in case of error
             con.rollback()
-            msg = "Error in the UPDATE: " + str(e)
+            # msg = "Error in the UPDATE: " + str(e)
             print(e)
 
         finally:
