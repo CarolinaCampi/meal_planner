@@ -185,13 +185,37 @@ def search():
         else:
             recipes = []
         return render_template("search.html", recipes=recipes)
-    
+
+# function that displays the edit menu for a recipe with id = recipe_ip
+def display_edit_recipe(edited_recipe_id):
+# Connect to the SQLite3 datatabase
+        cur = db_connect()
+        # Execute the SELECT query
+        cur.execute("SELECT * FROM recipes WHERE id = ?", (edited_recipe_id,))
+        recipe = cur.fetchall()
+
+        cur.execute("SELECT * FROM ingredients ORDER BY name ASC")
+        all_ingredients = cur.fetchall()
+
+        cur.execute("SELECT * FROM units ORDER BY name ASC")
+        all_units = cur.fetchall()
+
+        # Execute the second SELECT query on 'ing_used' table
+        cur.execute("SELECT ing_used.quantity, ingredients.name AS ing_name, ingredients.id AS ing_id, units.name AS unit_name, units.id AS unit_id FROM ing_used JOIN ingredients ON ingredients.id = ing_used.ing_id JOIN units ON units.id = ing_used.unit_id WHERE ing_used.recipe_id = ?", (edited_recipe_id,))
+        ing_used = cur.fetchall()
+
+        # Close the connection
+        db_close(cur)
+
+        return render_template("edit_recipe.html", recipe=recipe, ing_used=ing_used, all_ingredients=all_ingredients, all_units=all_units)
+
 # Route to form used to edit recipe and save to the database the revised recipe
 # FALTA AGREGAR NUEVOS INGREDIENTES O UNIDADES (IDEM CREATE_RECIPE)
 @app.route("/edit_recipe", methods=["GET", "POST"])
 def edit_recipe():
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
+          
         result = request.form
 
         recipe_id = request.form.get("recipe_id")
@@ -243,35 +267,17 @@ def edit_recipe():
 
         finally:
             con.close()
+
+            # Forget any recipe_id
+            session.clear()
+
             # Send the transaction message to result.html
             return render_template('result.html', msg=msg) 
 
     else:
         recipe_id = request.args.get("recipe_id")
 
-        # Remember which recipes is being edited
-        session["recipe_id"] = recipe_id
-
-        # Connect to the SQLite3 datatabase
-        cur = db_connect()
-        # Execute the SELECT query
-        cur.execute("SELECT * FROM recipes WHERE id = ?", (recipe_id,))
-        recipe = cur.fetchall()
-
-        cur.execute("SELECT * FROM ingredients ORDER BY name ASC")
-        all_ingredients = cur.fetchall()
-
-        cur.execute("SELECT * FROM units ORDER BY name ASC")
-        all_units = cur.fetchall()
-
-        # Execute the second SELECT query on 'ing_used' table
-        cur.execute("SELECT ing_used.quantity, ingredients.name AS ing_name, ingredients.id AS ing_id, units.name AS unit_name, units.id AS unit_id FROM ing_used JOIN ingredients ON ingredients.id = ing_used.ing_id JOIN units ON units.id = ing_used.unit_id WHERE ing_used.recipe_id = ?", (recipe_id,))
-        ing_used = cur.fetchall()
-
-        # Close the connection
-        db_close(cur)
-
-        return render_template("edit_recipe.html", recipe=recipe, ing_used=ing_used, all_ingredients=all_ingredients, all_units=all_units)
+        return display_edit_recipe(recipe_id)
 
 # Route to form used to delete a recipe
 @app.route("/delete_recipe", methods=["GET", "POST"])
@@ -426,11 +432,9 @@ def create_ingredient():
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
         new_ing = request.form.get("new_ing")
-        # recipe_id = request.form.get("recipe_id")
 
         if not new_ing:
             return render_template("result.html", msg="Please input a valid ingredient.")
-        
 
         try:
             # Connect to SQLite3 database and execute the INSERT
@@ -448,5 +452,18 @@ def create_ingredient():
 
         finally:
             con.close()
-            # Send the transaction message to result.html
+        
+        # check if the request came from create_recipe or edit_recipe
+        # Only edit_recipe passes the recipe_id
+        recipe_id = request.form.get("recipe_id")
+        if not recipe_id:
+            print("not recipe id")
+            # Redirect to create recipe to start again the creation
             return redirect('create_recipe') 
+        else:
+            print("else")
+            print(recipe_id)
+            return display_edit_recipe(recipe_id)
+
+            
+            
