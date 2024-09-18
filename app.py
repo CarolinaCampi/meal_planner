@@ -430,7 +430,6 @@ def create_unit():
 
 
 # Create new ingredient
-# REVISAR CUANDO ESTAMOS EN EDIT_RECIPE
 @app.route("/create_ingredient", methods=["POST"])
 def create_ingredient():
     # User reached route via POST (as by submitting a form via POST)
@@ -468,6 +467,7 @@ def create_ingredient():
             print("else")
             print(recipe_id)
             return display_edit_recipe(recipe_id)
+
 
 # Menu to choose the ingredient and the action to perform
 @app.route("/edit_ingredients", methods=["GET", "POST"])            
@@ -556,8 +556,17 @@ def delete_ingredient():
 
         # Connect to the SQLite3 datatabase
         cur = db_connect()
+
+        cur.execute("SELECT * FROM ing_used WHERE ing_id = ?", (ing_id,))
+        recipes = cur.fetchall()
+
+        if recipes:
+            return render_template('result.html', msg="This ingredient has associated recipes. It can not be deleted yet.")
+
         cur.execute("SELECT * FROM ingredients WHERE id = ?", (ing_id,))
         ingredient = cur.fetchall()
+
+
         # Close the connection
         db_close(cur)
 
@@ -626,6 +635,7 @@ def delete_unit():
             # Connect to the database and DELETE a specific record based on rowid
             with sqlite3.connect('meal_planner.db') as con:
                     cur = con.cursor()
+                    
                     # Delete from 'units' table
                     cur.execute("DELETE FROM units WHERE id = ?", (unit_id,))
 
@@ -648,6 +658,12 @@ def delete_unit():
 
         # Connect to the SQLite3 datatabase
         cur = db_connect()
+        cur.execute("SELECT * FROM ing_used WHERE unit_id = ?", (unit_id,))
+        recipes = cur.fetchall()
+
+        if recipes:
+            return render_template('result.html', msg="This unit has associated recipes. It can not be deleted yet.")
+        
         cur.execute("SELECT * FROM units WHERE id = ?", (unit_id,))
         unit = cur.fetchall()
         # Close the connection
