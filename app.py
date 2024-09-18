@@ -522,8 +522,6 @@ def edit_single_ingredient():
         # Close the connection
         db_close(cur)
 
-        print(ingredient)
-
         return render_template("edit_single_ingredient.html", ingredient=ingredient)
     
 # Delete the ingredient
@@ -531,7 +529,36 @@ def edit_single_ingredient():
 def delete_ingredient():
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
-        return
+        ing_id = request.form.get("ing_id")
+        try:
+            # Connect to the database and DELETE a specific record based on rowid
+            with sqlite3.connect('meal_planner.db') as con:
+                    cur = con.cursor()
+                    # Delete from 'ing_used' table first to maintain referential integrity
+                    cur.execute("DELETE FROM ingredients WHERE id = ?", (ing_id,))
+
+                    # Commit the transaction
+                    con.commit()
+                    msg = "Record successfully deleted from the database"
+
+        except Exception as e:
+            # Rollback in case of error
+            con.rollback()
+            msg = "Error in the DELETE: " + str(e)
+
+        finally:
+            con.close()
+            # Send the transaction message to result.html
+            return render_template('result.html',msg=msg)
+
     else:
-        
-        return render_template("delete_ingredinet.html") 
+        ing_id = request.args.get("ing_id")
+
+        # Connect to the SQLite3 datatabase
+        cur = db_connect()
+        cur.execute("SELECT * FROM ingredients WHERE id = ?", (ing_id,))
+        ingredient = cur.fetchall()
+        # Close the connection
+        db_close(cur)
+
+        return render_template("delete_ingredient.html", ingredient=ingredient) 

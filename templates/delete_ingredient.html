@@ -7,8 +7,8 @@
 {% block main %}
 <h3 class="pb-3">Borrar ingrediente</h3>
 <form action="/delete_ingredient" method="post" class="mb-4">
-    <input name="recipe_id" type="hidden" value="{{ recipe[0]['id'] }}">
-    <p><strong>La eliminación de ingrediente es permanente y puede afectar a las recetas de la base de datos. Está seguro que desear eliminar la receta de {{ recipe[0]['name'] }}?</strong></p>
+    <input name="ing_id" type="hidden" value="{{ ingredient[0]['id'] }}">
+    <p><strong>La eliminación de ingrediente es permanente y puede afectar a las recetas de la base de datos. Está seguro que desear eliminar el ingrediente <span class="text-uppercase fs-5">{{ ingredient[0]['name'] }}</span>?</strong></p>
     <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Eliminar</button>
 </form>
 {% endblock %}
