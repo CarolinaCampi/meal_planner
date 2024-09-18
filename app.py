@@ -422,7 +422,18 @@ def create_unit():
         finally:
             con.close()
             # Send the transaction message to result.html
+        
+        # check if the request came from create_recipe or edit_recipe
+        # Only edit_recipe passes the recipe_id
+        recipe_id = request.form.get("recipe_id")
+        if not recipe_id:
+            print("not recipe id")
+            # Redirect to create recipe to start again the creation
             return redirect('create_recipe') 
+        else:
+            print("else")
+            print(recipe_id)
+            return display_edit_recipe(recipe_id)
 
 
 # Create new ingredient
