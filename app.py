@@ -1,15 +1,14 @@
 from flask import Flask, flash, redirect, render_template, request, session, g
-from flask_session import Session
+# from flask_session import Session
 import sqlite3
-import random
 
 # Configure application
 app = Flask(__name__)
 
 # Configure session to use filesystem (instead of signed cookies)
-app.config["SESSION_PERMANENT"] = False
-app.config["SESSION_TYPE"] = "filesystem"
-Session(app)
+# app.config["SESSION_PERMANENT"] = False
+# app.config["SESSION_TYPE"] = "filesystem"
+# Session(app)
 
 # Function to connect the database
 def db_connect():
@@ -186,7 +185,7 @@ def search():
             recipes = []
         return render_template("search.html", recipes=recipes)
 
-# function that displays the edit menu for a recipe with id = recipe_ip
+# Function that displays the edit menu for a recipe with id = recipe_ip
 def display_edit_recipe(edited_recipe_id):
 # Connect to the SQLite3 datatabase
         cur = db_connect()
@@ -215,9 +214,7 @@ def display_edit_recipe(edited_recipe_id):
 def edit_recipe():
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
-          
         result = request.form
-
         recipe_id = request.form.get("recipe_id")
 
         recipe_name = request.form.get("recipe_name")
@@ -267,10 +264,6 @@ def edit_recipe():
 
         finally:
             con.close()
-
-            # Forget any recipe_id
-            session.clear()
-
             # Send the transaction message to result.html
             return render_template('result.html', msg=msg) 
 
@@ -476,5 +469,69 @@ def create_ingredient():
             print(recipe_id)
             return display_edit_recipe(recipe_id)
 
-            
-            
+# Menu to choose the ingredient and the action to perform
+@app.route("/edit_ingredients", methods=["GET", "POST"])            
+def edit_ingredients():
+    # Connect to the SQLite3 datatabase
+    cur = db_connect()
+    cur.execute("SELECT * FROM ingredients ORDER BY name ASC")
+    all_ingredients = cur.fetchall()
+    # Close the connection
+    db_close(cur)
+
+    return render_template("edit_ingredients.html", all_ingredients=all_ingredients)
+
+# Edit the ingredient name
+@app.route("/edit_single_ingredient", methods=["GET", "POST"])
+def edit_single_ingredient():
+    # User reached route via POST (as by submitting a form via POST)
+    if request.method == "POST":
+        print("post")
+
+        ing_id = request.form.get("ing_id")
+        ing_name = request.form.get("ing_name")
+        if not ing_name:
+            return render_template("result.html", msg="Please input a valid ingredient.")
+
+        try:
+            # UPDATE a specific record in the database based on the rowid
+            with sqlite3.connect('meal_planner.db') as con:
+                cur = con.cursor()
+                cur.execute("UPDATE ingredients SET name = ? WHERE id = ?", (ing_name, ing_id))
+                con.commit()
+                msg = "Record successfully edited in the database"
+        
+        except Exception as e:
+            # Rollback in case of error
+            con.rollback()
+            msg = "Error in the UPDATE: " + str(e)
+
+        finally:
+            con.close()
+            # Send the transaction message to result.html
+            return render_template('result.html', msg=msg) 
+
+
+    else:
+        ing_id = request.args.get("ing_id")
+        
+        # Connect to the SQLite3 datatabase
+        cur = db_connect()
+        cur.execute("SELECT * FROM ingredients WHERE id = ?", (ing_id,))
+        ingredient = cur.fetchall()
+        # Close the connection
+        db_close(cur)
+
+        print(ingredient)
+
+        return render_template("edit_single_ingredient.html", ingredient=ingredient)
+    
+# Delete the ingredient
+@app.route("/delete_ingredient", methods=["GET", "POST"])
+def delete_ingredient():
+    # User reached route via POST (as by submitting a form via POST)
+    if request.method == "POST":
+        return
+    else:
+        
+        return render_template("delete_ingredinet.html") 
