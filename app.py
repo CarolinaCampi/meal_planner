@@ -534,7 +534,7 @@ def delete_ingredient():
             # Connect to the database and DELETE a specific record based on rowid
             with sqlite3.connect('meal_planner.db') as con:
                     cur = con.cursor()
-                    # Delete from 'ing_used' table first to maintain referential integrity
+                    # Delete from 'ingredients' table 
                     cur.execute("DELETE FROM ingredients WHERE id = ?", (ing_id,))
 
                     # Commit the transaction
@@ -562,3 +562,95 @@ def delete_ingredient():
         db_close(cur)
 
         return render_template("delete_ingredient.html", ingredient=ingredient) 
+    
+# Menu to choose the ingredient and the action to perform
+@app.route("/edit_units", methods=["GET", "POST"])            
+def edit_units():
+    # Connect to the SQLite3 datatabase
+    cur = db_connect()
+    cur.execute("SELECT * FROM units ORDER BY name ASC")
+    all_units = cur.fetchall()
+    # Close the connection
+    db_close(cur)
+
+    return render_template("edit_units.html", all_units=all_units)
+
+# Edit the unit name
+@app.route("/edit_single_unit", methods=["GET", "POST"])
+def edit_single_unit():
+    # User reached route via POST (as by submitting a form via POST)
+    if request.method == "POST":
+        unit_id = request.form.get("unit_id")
+        unit_name = request.form.get("unit_name")
+        if not unit_name:
+            return render_template("result.html", msg="Please input a valid unit.")
+
+        try:
+            # UPDATE a specific record in the database based on the rowid
+            with sqlite3.connect('meal_planner.db') as con:
+                cur = con.cursor()
+                cur.execute("UPDATE units SET name = ? WHERE id = ?", (unit_name, unit_id))
+                con.commit()
+                msg = "Record successfully edited in the database"
+        
+        except Exception as e:
+            # Rollback in case of error
+            con.rollback()
+            msg = "Error in the UPDATE: " + str(e)
+
+        finally:
+            con.close()
+            # Send the transaction message to result.html
+            return render_template('result.html', msg=msg) 
+
+
+    else:
+        unit_id = request.args.get("unit_id")
+        
+        # Connect to the SQLite3 datatabase
+        cur = db_connect()
+        cur.execute("SELECT * FROM units WHERE id = ?", (unit_id,))
+        unit = cur.fetchall()
+        # Close the connection
+        db_close(cur)
+
+        return render_template("edit_single_unit.html", unit=unit)
+    
+# Delete the unit
+@app.route("/delete_unit", methods=["GET", "POST"])
+def delete_unit():
+    # User reached route via POST (as by submitting a form via POST)
+    if request.method == "POST":
+        unit_id = request.form.get("unit_id")
+        try:
+            # Connect to the database and DELETE a specific record based on rowid
+            with sqlite3.connect('meal_planner.db') as con:
+                    cur = con.cursor()
+                    # Delete from 'units' table
+                    cur.execute("DELETE FROM units WHERE id = ?", (unit_id,))
+
+                    # Commit the transaction
+                    con.commit()
+                    msg = "Record successfully deleted from the database"
+
+        except Exception as e:
+            # Rollback in case of error
+            con.rollback()
+            msg = "Error in the DELETE: " + str(e)
+
+        finally:
+            con.close()
+            # Send the transaction message to result.html
+            return render_template('result.html',msg=msg)
+
+    else:
+        unit_id = request.args.get("unit_id")
+
+        # Connect to the SQLite3 datatabase
+        cur = db_connect()
+        cur.execute("SELECT * FROM units WHERE id = ?", (unit_id,))
+        unit = cur.fetchall()
+        # Close the connection
+        db_close(cur)
+
+        return render_template("delete_unit.html", unit=unit) 
