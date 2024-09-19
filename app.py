@@ -60,7 +60,7 @@ def index():
         # Connect to the database and create a cursor
         cur = db_connect()
         # Execute the SELECT query
-        cur.execute("SELECT id, name FROM recipes")
+        cur.execute("SELECT id, name FROM recipes ORDER BY name ASC")
         # Fetch the results: use fetchall() to get all results or fetchone() for a single row
         rows = cur.fetchall()
         # Close the connection
@@ -174,7 +174,7 @@ def search():
             # Connect to the SQLite3 datatabase
             cur = db_connect()
             # Step 4: Execute the SELECT query
-            cur.execute("SELECT id, name FROM recipes WHERE name LIKE ? LIMIT 50", ("%" + query + "%", ))
+            cur.execute("SELECT id, name FROM recipes WHERE name LIKE ? ORDER BY name ASC LIMIT 50", ("%" + query + "%", ))
             # Step 5: Fetch the results
             # Use fetchall() to get all results or fetchone() for a single row
             recipes = cur.fetchall()
