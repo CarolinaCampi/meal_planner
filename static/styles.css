@@ -16,11 +16,11 @@ Divider color       #BDBDBD
 
 body {
     background-color: #b2dfdb;
-    font-family: Verdana, Tahoma, Verdana, sans-serif;
+    font-family: "Roboto", Verdana, Tahoma, Verdana, sans-serif;
 }
 
 .card-title {
-    font-size: 1.5em;
+    font-size: 1.3em;
 }
 /* NAVBAR */
 nav {

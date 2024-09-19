@@ -16,6 +16,11 @@
     <!-- Bootstrap icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
+    <!-- Google fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;400&display=swap" rel="stylesheet">
+
     <!--Source: https://www.flaticon.com/free-icons/nutrition - Nutrition icons created by Roundicons Premium - Flaticon-->
     <link href="/static/favicon.ico" rel="icon" title="nutrition icon">
 
@@ -29,13 +34,13 @@
     <header>
         <nav class="navbar navbar-expand-md fixed-top">
             <div class="container-fluid">
-                <a class="navbar-brand" href="/">Meal planner</a>
+                <a class="navbar-brand fs-4" href="/"><img src="/static/favicon.ico" class="me-2" height="27px" width="27px" alt="Plate of food with fork">Meal planner</a>
                 <button aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation"
                     class="navbar-toggler" data-bs-target="#navbar" data-bs-toggle="collapse" type="button">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbar">
-                    <ul class="navbar-nav me-auto mt-2">
+                    <ul class="navbar-nav">
                         <li class="nav-item"><a class="nav-link" href="/create_plan">Crear plan</a></li>
                         <li class="nav-item"><a class="nav-link" href="/create_recipe">Nueva receta</a></li>
                         <li class="nav-item"><a class="nav-link" href="/search">Buscar</a></li>
