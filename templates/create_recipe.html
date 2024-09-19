@@ -6,7 +6,7 @@ New recipe
 
 {% block main %}
 <div class="container-fluid">
-    <h3 class="pb-3">Nueva receta</h3>
+    <h2 class="pb-3">Nueva receta</h2>
     <form action="/create_recipe" method="post" class="mb-4">
 <!-- RECIPE NAME -->
         <div class="mb-3">
@@ -43,13 +43,13 @@ New recipe
             </div>
         </section>
 
-        <button class="btn btn-info" id="add_ing_input">Agregar ingrediente</button>
+        <button class="btn btn-color" id="add_ing_input">Agregar ingrediente</button>
 <!-- INSTRUCTIONS -->
         <div class="mb-3">
             <label for="recipe_instructions" class="form-label">Instrucciones</label>
             <textarea rows="7" class="form-control" id="recipe_instructions" name="recipe_instructions"></textarea>
         </div>
-        <button type="submit" class="btn btn-primary">Create</button>
+        <button type="submit" class="btn btn-color">Create</button>
 
     </form>
 
@@ -64,7 +64,7 @@ New recipe
                 <input type="text" class="form-control" id="new_ing" name="new_ing">
             </div>
             <div class="col-auto mb-2">
-                <button class="btn btn-warning">Agregar</button>
+                <button class="btn btn-color">Agregar</button>
             </div>
         </div>
     </form>
@@ -78,7 +78,7 @@ New recipe
                 <input type="text" class="form-control" id="new_unit" name="new_unit">
             </div>
             <div class="col-auto mb-2">
-                <button class="btn btn-warning">Agregar</button>
+                <button class="btn btn-color">Agregar</button>
             </div>
         </div>
     </form>

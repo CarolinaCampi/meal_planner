@@ -1,18 +1,59 @@
 /* CSS styles */
 
+/* Palette */
+/* https://www.materialpalette.com/teal/amber
+Dark  primary color #00796B
+Light primary color #b2dfdb
+Primary color       #009688
+Text / Icons        #FFFFFF
+Accent color        #ffc107
+Primary text        #212121
+Secondary text      #757575
+Divider color       #BDBDBD
+*/
 
 /* GLOBAL STYLES */
 
 body {
-    background-color: cornflowerblue;
-    font-family: Georgia, 'Times New Roman', Times, serif;
+    background-color: #b2dfdb;
+    font-family: Verdana, Tahoma, Verdana, sans-serif;
 }
 
+.card-title {
+    font-size: 20px;
+}
+/* NAVBAR */
 nav {
-    background-color: darkseagreen;
+    background-color: #009688;
 }
 
+.nav-link, .navbar-brand {
+    color: white;
+}
 
+/* MAIN */
+.btn-color {
+    background-color: #ffc107;
+}
+
+.btn-color:hover {
+    background-color: #e2ab04;
+}
+
+.table {
+    border-top: 4px solid #BDBDBD;
+    border-bottom: 4px solid #BDBDBD;
+}
+
+/* FOOTER */
 footer {
-    background-color: orange;
+    background-color: #00796B;
+    color: white;
+}
+
+a {
+    color: white;
+}
+a:hover {
+    color: #ffc107;
 }

@@ -6,7 +6,7 @@ Edit recipe
 
 {% block main %}
 <div class="container-fluid">
-    <h3 class="pb-3">Editar receta</h3>
+    <h2 class="pb-3">Editar receta</h2>
     <!-- RECIPE NAME -->
     <form action="/edit_recipe" method="post" class="mb-4">
         <input name="recipe_id" type="hidden" value="{{ recipe[0]['id'] }}">
@@ -59,7 +59,7 @@ Edit recipe
             {% endfor %}
         </section>
 
-        <button type="button" class="btn btn-info mb-3" id="add_ing_input">Agregar ingrediente</button>
+        <button type="button" class="btn btn-color mb-3" id="add_ing_input">Agregar ingrediente</button>
     <!-- INSTRUCTIONS -->
         <div class="mb-3">
             <label for="recipe_instructions" class="form-label">Instrucciones</label>
@@ -67,7 +67,7 @@ Edit recipe
                 name="recipe_instructions">{{ recipe[0]['instructions']}}</textarea>
         </div>
 
-        <button type="submit" class="btn btn-primary">Editar</button>
+        <button type="submit" class="btn btn-color">Editar</button>
 
     </form>
 
@@ -84,7 +84,7 @@ Edit recipe
             </div>
             <input name="recipe_id" type="hidden" value="{{ recipe[0]['id'] }}">
             <div class="col-auto mb-2">
-                <button class="btn btn-warning">Agregar</button>
+                <button class="btn btn-color">Agregar</button>
             </div>
         </div>
     </form>
@@ -99,7 +99,7 @@ Edit recipe
             </div>
             <input name="recipe_id" type="hidden" value="{{ recipe[0]['id'] }}">
             <div class="col-auto mb-2">
-                <button class="btn btn-warning">Agregar</button>
+                <button class="btn btn-color">Agregar</button>
             </div>
         </div>
     </form>

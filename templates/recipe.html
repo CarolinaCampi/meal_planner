@@ -9,7 +9,7 @@ Recipe
 <section class="container-fluid">
     <div id="recipe" class="card mb-3">
         <div class="card-header d-flex justify-content-between">
-            <h4 class="m-0">{{ recipe[0]["name"] }}</h4>
+            <h3 class="m-0">{{ recipe[0]["name"] }}</h3>
             <button id="copy-recipe" type="button" class="btn btn-outline-secondary btn-sm"><i
                     class="bi bi-clipboard"></i><i class="bi bi-clipboard-check d-none"></i></button>
         </div>
@@ -34,7 +34,7 @@ Recipe
 <section class="container-fluid d-inline-flex justify-content-between">
     <form action="/edit_recipe" method="get" class="mb-3 d-inline">
         <input name="recipe_id" type="hidden" value="{{ recipe[0]['id'] }}">
-        <button type="submit" class="btn btn-info"><i class="bi bi-pencil"></i> Editar</button>
+        <button type="submit" class="btn btn-color"><i class="bi bi-pencil"></i> Editar</button>
     </form>
 
     <form action="/delete_recipe" method="get" class="mb-3 d-inline">
