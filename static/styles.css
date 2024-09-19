@@ -31,6 +31,10 @@ nav {
     color: white;
 }
 
+.nav-link:hover, .navbar-brand:hover {
+    color: #ffc107;
+}
+
 /* MAIN */
 .btn-color {
     background-color: #ffc107;
