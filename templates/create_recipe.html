@@ -94,6 +94,13 @@ New recipe
 <script>
     i = 1;
 
+    all_ingredients = {
+        {% for ingredient in ingredients %}
+            {{ingredient['id']}}: "{{ingredient["name"]}}",
+        {% endfor %}
+    };
+    
+
     document.addEventListener('DOMContentLoaded', function () {
         console.log("Script loaded!"); // Check if the script is loaded
 
@@ -103,7 +110,14 @@ New recipe
         const add_ing_input = document.getElementById('add_ing_input');
 
         function ing_input(number) {
-            console.log("i es" + i);
+            console.log("i es " + i);
+
+            let options = "";
+            for (const ing in all_ingredients) {
+                options = options + `<option value="${ing}">${all_ingredients[ing]}</option>`;
+            }
+
+
             return (
                 `
                 <div class="col-auto mb-2">
@@ -122,11 +136,9 @@ New recipe
                 <div class="col-auto mb-2">
                     <label class="visually-hidden" for="ingredient_${number}">Ingrediente</label>
                     <select class="form-select select-ingredients" id="ingredient_${number}" name="ingredient_${number}">
-                        <option selected>Elegir ingrediente</option>
-                        {% for ingredient in ingredients %}
-                        <option value="{{ingredient['id']}}">{{ingredient["name"]}}</option>
-                        {% endfor %}
-                    </select>
+                        <option selected>Elegir ingrediente</option>` 
+                        + options +
+                    `</select>
                 </div>
                 <div class="col-auto mb-2">
                     <button type="button" class="btn btn-secondary" id="remove_ing_input_${number}">
@@ -149,7 +161,7 @@ New recipe
                 // Log to verify button click
                 console.log("Button clicked!");
 
-                // Create a new <p> element
+                // Create a new <div> element
                 const div = document.createElement("div");
                 div.classList.add("row");
                 div.classList.add("mb-2");
@@ -187,6 +199,7 @@ New recipe
                 newOptionElement.text = new_ing_name;
                 newOptionElement.value = new_ing_id;
                 dropdown.appendChild(newOptionElement);
+                all_ingredients.new_ing_id = new_ing_name;
             });
         }
 
@@ -200,16 +213,15 @@ New recipe
             // Send the AJAX request to the backend
             // https://www.freecodecamp.org/news/how-to-use-fetch-api/
             // https://stackoverflow.com/questions/63502630/how-to-use-fetch-to-get-post-data-from-flask
+            // https://stackoverflow.com/questions/67865889/what-is-different-between-fetch-and-jquery-ajax-post
             fetch('/create_ingredient', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                    // 'Content-type': 'application/json'
+                    'Content-type': 'application/json'
                 },
-                // body: {
-                //     "new_ing": newOption
-                // }
-                body: `new_ing=${encodeURIComponent(newOption)}`
+                body: JSON.stringify({
+                    "new_ing": newOption
+                })
             })
                 .then(response => {
                     if (!response.ok) {
@@ -218,13 +230,12 @@ New recipe
                     }
                     return response.json();
                 })
-                .then(function (data) {
+                .then(data => {
                     console.log(data);
-                    // data => {
                     // Update all dropdowns with the new option
                     updateAllDropdowns(data.ing_id, data.ing_name);
 
-                    // Optionally, clear the input field
+                    // Clear the input field
                     document.querySelector('#new_ing').value = '';
                 })
                 .catch(error => {

@@ -439,7 +439,9 @@ def create_unit():
 def create_ingredient():
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
-        new_ing = request.form.get("new_ing")
+        request_data = request.get_json()
+        
+        new_ing = request_data["new_ing"]
 
         if not new_ing:
             return render_template("result.html", msg="Please input a valid ingredient.")
@@ -468,16 +470,16 @@ def create_ingredient():
             con.close()
         
         # Check if the request came from create_recipe or edit_recipe
-        # Only edit_recipe passes the recipe_id
-        recipe_id = request.form.get("recipe_id")
-        if not recipe_id:
+        # Only edit_recipe passes the recipe_id        
+        if "recipe_id" not in request_data:
             print("No recipe id so the request came from create_recipe")
             # Redirect to create recipe to start again the creation
             # return redirect('create_recipe') 
 
             # Return the new option as a JSON response
-            return jsonify({"ing_id": inserted_id, "ing_name": new_ing}), 200
+            return jsonify({"ing_id": inserted_id, "ing_name": new_ing})
         else:
+            recipe_id = request_data["recipe_id"]
             print("else")
             print(recipe_id)
             return display_edit_recipe(recipe_id)
