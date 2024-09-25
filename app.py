@@ -82,6 +82,7 @@ def create_recipe():
         name = request.form.get("recipe_name")
         if not name:
             return render_template('result.html', msg = "Please complete a recipe name")
+        name = name.capitalize()
 
         instructions = request.form.get("recipe_instructions")
         if not instructions:
@@ -221,6 +222,8 @@ def edit_recipe():
         if not recipe_name:
             return render_template('result.html', msg = "Please complete a recipe name")
         
+        recipe_name = recipe_name.capitalize()
+
         instructions = request.form.get("recipe_instructions")
         if not instructions:
             return render_template('result.html', msg = "Please complete instructions for the recipe")
@@ -398,6 +401,8 @@ def create_unit():
         if not new_unit:
             return render_template("result.html", msg="Please input a valid ingredient.")
         
+        new_unit = new_unit.lower()
+
         try:
             # Connect to SQLite3 database and execute the INSERT
             with sqlite3.connect('meal_planner.db') as con:
@@ -439,6 +444,8 @@ def create_ingredient():
         if not new_ing:
             return render_template("result.html", msg="Please input a valid ingredient.")
 
+        new_ing = new_ing.lower()
+
         try:
             # Connect to SQLite3 database and execute the INSERT
             with sqlite3.connect('meal_planner.db') as con:
@@ -477,8 +484,9 @@ def create_ingredient():
 
 
 # Menu to choose the ingredient and the action to perform
-@app.route("/edit_ingredients", methods=["GET", "POST"])            
+@app.route("/edit_ingredients")            
 def edit_ingredients():
+
     # Connect to the SQLite3 datatabase
     cur = db_connect()
     cur.execute("SELECT * FROM ingredients ORDER BY name ASC")
@@ -493,12 +501,13 @@ def edit_ingredients():
 def edit_single_ingredient():
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
-        print("post")
 
         ing_id = request.form.get("ing_id")
         ing_name = request.form.get("ing_name")
         if not ing_name:
             return render_template("result.html", msg="Please input a valid ingredient.")
+
+        ing_name = ing_name.lower()
 
         try:
             # UPDATE a specific record in the database based on the rowid
@@ -580,7 +589,7 @@ def delete_ingredient():
         return render_template("delete_ingredient.html", ingredient=ingredient) 
     
 # Menu to choose the ingredient and the action to perform
-@app.route("/edit_units", methods=["GET", "POST"])            
+@app.route("/edit_units")            
 def edit_units():
     # Connect to the SQLite3 datatabase
     cur = db_connect()
@@ -600,6 +609,8 @@ def edit_single_unit():
         unit_name = request.form.get("unit_name")
         if not unit_name:
             return render_template("result.html", msg="Please input a valid unit.")
+
+        unit_name = unit_name.lower()
 
         try:
             # UPDATE a specific record in the database based on the rowid
