@@ -8,19 +8,20 @@ New recipe
 <div class="container-fluid">
     <h2 class="pb-3">Nueva receta</h2>
     <form action="/create_recipe" method="post" class="mb-4">
-<!-- RECIPE NAME -->
+        <!-- RECIPE NAME -->
         <div class="mb-3">
             <label for="recipe_name" class="form-label">Nombre</label>
             <input autofocus type="text" class="form-control" id="recipe_name" name="recipe_name">
         </div>
-<!-- INGREDIENTS -->
+        <!-- INGREDIENTS -->
         <section id="ingredients">
             <p class="form-label">Ingredientes</p>
 
             <div class="row mb-2" id="ing_1">
                 <div class="col-auto mb-2">
                     <label class="visually-hidden" for="quantity">Cantidad</label>
-                    <input type="number" class="form-control" id="quantity" placeholder="Cantidad" name="quantity_1" min="0">
+                    <input type="number" class="form-control" id="quantity" placeholder="Cantidad" name="quantity_1"
+                        min="0">
                 </div>
                 <div class="col-auto mb-2">
                     <label class="visually-hidden" for="unit_1">Unidad</label>
@@ -33,7 +34,7 @@ New recipe
                 </div>
                 <div class="col-auto mb-2">
                     <label class="visually-hidden" for="ingredient_1">Ingrediente</label>
-                    <select class="form-select" id="ingredient_1" name="ingredient_1">
+                    <select class="form-select select-ingredients" id="ingredient_1" name="ingredient_1">
                         <option selected>Elegir ingrediente</option>
                         {% for ingredient in ingredients %}
                         <option value="{{ingredient['id']}}">{{ingredient["name"]}}</option>
@@ -43,8 +44,9 @@ New recipe
             </div>
         </section>
 
-        <button class="btn btn-color" id="add_ing_input">Agregar ingrediente</button>
-<!-- INSTRUCTIONS -->
+        <button class="btn btn-color mb-3" id="add_ing_input">Agregar ingrediente</button>
+
+        <!-- INSTRUCTIONS -->
         <div class="mb-3">
             <label for="recipe_instructions" class="form-label">Instrucciones</label>
             <textarea rows="7" class="form-control" id="recipe_instructions" name="recipe_instructions"></textarea>
@@ -55,7 +57,7 @@ New recipe
 
     <h4 class="mb-3">Falta algún ingrediente o una unidad?</h4>
 
-    <form action="/create_ingredient" method="post">
+    <form action="/create_ingredient" method="post" id="new_ing_form">
         <div class="row mb-3">
             <div class="col-sm-3 mb-2">
                 <label for="new_ing" class="col-form-label">Nuevo ingrediente</label>
@@ -64,7 +66,7 @@ New recipe
                 <input type="text" class="form-control" id="new_ing" name="new_ing">
             </div>
             <div class="col-auto mb-2">
-                <button class="btn btn-color">Agregar</button>
+                <button type="submit" id="create_ingredient" class="btn btn-color">Agregar</button>
             </div>
         </div>
     </form>
@@ -95,6 +97,8 @@ New recipe
     document.addEventListener('DOMContentLoaded', function () {
         console.log("Script loaded!"); // Check if the script is loaded
 
+        // Add ingredient input lines:
+
         // Attach the event listener to the button
         const add_ing_input = document.getElementById('add_ing_input');
 
@@ -103,22 +107,22 @@ New recipe
             return (
                 `
                 <div class="col-auto mb-2">
-                    <label class="visually-hidden" for="quantity_${number}">Quantity</label>
+                    <label class="visually-hidden" for="quantity_${number}">Cantidad</label>
                     <input type="number" class="form-control" id="quantity_${number}" placeholder="Cantidad" name="quantity_${number}" min="0">
                 </div>
                 <div class="col-auto mb-2">
-                    <label class="visually-hidden" for="unit_${number}">Unit</label>
+                    <label class="visually-hidden" for="unit_${number}">Unidad</label>
                     <select class="form-select" id="unit_${number}" name="unit_${number}">
-                        <option selected>Choose unit</option>
+                        <option selected>Elegir unidad</option>
                         {% for unit in units %}
                         <option value="{{unit['id']}}">{{unit["name"]}}</option>
                         {% endfor %}
                     </select>
                 </div>
                 <div class="col-auto mb-2">
-                    <label class="visually-hidden" for="ingredient_${number}">Ingredient</label>
-                    <select class="form-select" id="ingredient_${number}" name="ingredient_${number}">
-                        <option selected>Choose ingredient</option>
+                    <label class="visually-hidden" for="ingredient_${number}">Ingrediente</label>
+                    <select class="form-select select-ingredients" id="ingredient_${number}" name="ingredient_${number}">
+                        <option selected>Elegir ingrediente</option>
                         {% for ingredient in ingredients %}
                         <option value="{{ingredient['id']}}">{{ingredient["name"]}}</option>
                         {% endfor %}
@@ -131,7 +135,8 @@ New recipe
                 </div>
 
                 `
-            )};
+            )
+        };
 
         // Verify if the element is found
         if (add_ing_input) {
@@ -158,7 +163,7 @@ New recipe
                 document.querySelector("#ingredients").appendChild(div);
 
                 // Create function to remove input line
-                document.querySelector("#remove_ing_input_" + i).addEventListener('click', function(event) {
+                document.querySelector("#remove_ing_input_" + i).addEventListener('click', function (event) {
                     // Prevent default behavior
                     event.preventDefault();
                     console.log(event.target.id);
@@ -171,6 +176,75 @@ New recipe
         } else {
             console.log("Button not found!");
         }
+
+        // AJAX to add new ingredients and units created to the dropdown menus and POST to back end
+
+        // Function to update all dropdowns with the new option
+        function updateAllDropdowns(new_ing_id, new_ing_name) {
+            const dropdowns = document.querySelectorAll('.select-ingredients');
+            dropdowns.forEach(dropdown => {
+                const newOptionElement = document.createElement('option');
+                newOptionElement.text = new_ing_name;
+                newOptionElement.value = new_ing_id;
+                dropdown.appendChild(newOptionElement);
+            });
+        }
+
+        // JavaScript to handle the second form submission and AJAX request
+        document.querySelector('#new_ing_form').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            // Get the new option value
+            const newOption = document.querySelector('#new_ing').value;
+
+            // Send the AJAX request to the backend
+            // https://www.freecodecamp.org/news/how-to-use-fetch-api/
+            // https://stackoverflow.com/questions/63502630/how-to-use-fetch-to-get-post-data-from-flask
+            fetch('/create_ingredient', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                    // 'Content-type': 'application/json'
+                },
+                // body: {
+                //     "new_ing": newOption
+                // }
+                body: `new_ing=${encodeURIComponent(newOption)}`
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        // Handle any errors returned by the server
+                        return response.json().then(error => { throw new Error(error.error); });
+                    }
+                    return response.json();
+                })
+                .then(function (data) {
+                    console.log(data);
+                    // data => {
+                    // Update all dropdowns with the new option
+                    updateAllDropdowns(data.ing_id, data.ing_name);
+
+                    // Optionally, clear the input field
+                    document.querySelector('#new_ing').value = '';
+                })
+                .catch(error => {
+                    console.error('Fetch Error:', error);
+                });
+        });
+
+        // // Handle dynamically adding new dropdowns
+        // document.getElementById('add-dropdown').addEventListener('click', function() {
+        //     // Create a new dropdown element
+        //     const newDropdown = document.createElement('select');
+        //     newDropdown.classList.add('select-ingredients');
+
+        //     // Get options from an existing dropdown (can be the first one)
+        //     const firstDropdown = document.querySelector('.select-ingredients');
+        //     newDropdown.innerHTML = firstDropdown.innerHTML;
+
+        //     // Append the new dropdown to the container
+        //     document.getElementById('dynamic-dropdowns').appendChild(newDropdown);
+        // });
     });
 </script>
 

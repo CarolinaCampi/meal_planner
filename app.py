@@ -1,4 +1,4 @@
-from flask import Flask, flash, redirect, render_template, request, session, g
+from flask import Flask, flash, jsonify, redirect, render_template, request, session, g
 # from flask_session import Session
 import sqlite3
 
@@ -443,7 +443,11 @@ def create_ingredient():
             # Connect to SQLite3 database and execute the INSERT
             with sqlite3.connect('meal_planner.db') as con:
                 cur = con.cursor()
-                cur.execute("INSERT INTO ingredients (name) VALUES (?)", (new_ing,))
+                cur.execute("INSERT INTO ingredients (name) VALUES (?) RETURNING id", (new_ing,))
+                # get the returning id from the inserted row
+                row = cur.fetchone()
+                (inserted_id, ) = row if row else None
+
                 con.commit()
                 # msg = "Record successfully edited in the database"
         
@@ -456,13 +460,16 @@ def create_ingredient():
         finally:
             con.close()
         
-        # check if the request came from create_recipe or edit_recipe
+        # Check if the request came from create_recipe or edit_recipe
         # Only edit_recipe passes the recipe_id
         recipe_id = request.form.get("recipe_id")
         if not recipe_id:
-            print("not recipe id")
+            print("No recipe id so the request came from create_recipe")
             # Redirect to create recipe to start again the creation
-            return redirect('create_recipe') 
+            # return redirect('create_recipe') 
+
+            # Return the new option as a JSON response
+            return jsonify({"ing_id": inserted_id, "ing_name": new_ing}), 200
         else:
             print("else")
             print(recipe_id)

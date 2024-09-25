@@ -132,18 +132,18 @@ Edit recipe
                     <input type="number" class="form-control" id="quantity_${number}" placeholder="Cantidad" name="quantity_${number}" min="0">
                 </div>
                 <div class="col-auto mb-2">
-                    <label class="visually-hidden" for="unit_${number}">Unit</label>
+                    <label class="visually-hidden" for="unit_${number}">Unidad</label>
                     <select class="form-select" id="unit_${number}" name="unit_${number}">
-                        <option selected>Choose unit</option>
+                        <option selected>Elegir unidad</option>
                         {% for unit in all_units %}
                         <option value="{{unit['id']}}">{{unit["name"]}}</option>
                         {% endfor %}
                     </select>
                 </div>
                 <div class="col-auto mb-2">
-                    <label class="visually-hidden" for="ingredient_${number}">Ingredient</label>
+                    <label class="visually-hidden" for="ingredient_${number}">Ingrediente</label>
                     <select class="form-select" id="ingredient_${number}" name="ingredient_${number}">
-                        <option selected>Choose ingredient</option>
+                        <option selected>Elegir ingrediente</option>
                         {% for ingredient in all_ingredients %}
                         <option value="{{ingredient['id']}}">{{ingredient["name"]}}</option>
                         {% endfor %}
