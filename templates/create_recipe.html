@@ -127,12 +127,9 @@ New recipe
 
         // Create the HTML-containing string that will be inserted into the ingredient input row that
         function create_ing_input(number) {
-            console.log("i es " + i);
-
             // Dynamically create the options for <select> inputs for ingredients and units
             ingredient_options = create_options_string(all_ingredients);
             units_options - create_options_string(all_units);
-
 
             return (
                 `
@@ -164,14 +161,15 @@ New recipe
             )
         };
 
-        // Attach the event listener to the button
-        // Find the button
+        
+        // Find the button that will have the event listener
         const add_ing_input = document.querySelector('#add_ing_input');
 
         // Verify if the element is found
         if (add_ing_input) {
             console.log("add_ing_input element found!");
 
+            // Attach the event listener to the button
             add_ing_input.addEventListener('click', function (event) {
                 // Prevent default behavior
                 event.preventDefault();
@@ -179,11 +177,13 @@ New recipe
                 // Log to verify button click
                 console.log("Button clicked!");
 
+                // Increment the counter
+                i += 1;
+
                 // Create a new <div> element
                 const div = document.createElement("div");
                 div.classList.add("row");
                 div.classList.add("mb-2");
-                i += 1;
                 div.setAttribute('id', "ing_" + i);
                 console.log("div created");
                 div.innerHTML = create_ing_input(i);
@@ -196,10 +196,11 @@ New recipe
                 document.querySelector("#remove_ing_input_" + i).addEventListener('click', function (event) {
                     // Prevent default behavior
                     event.preventDefault();
-                    console.log(event.target.id);
+
                     target_id = event.target.id;
+                    // Get the number that indexes the id
                     index = target_id.substring(target_id.length - 1);
-                    console.log(index);
+                    
                     document.querySelector("#ing_" + index).remove();
                 })
             });
@@ -265,6 +266,7 @@ New recipe
         });
         };
 
+        // Call functions for new ingredients and units
         post_new_item_update_dropdowns('#new_ing_form', '#new_ing', '/create_ingredient', '.select-ingredients', all_ingredients);
         post_new_item_update_dropdowns('#new_unit_form', '#new_unit', '/create_unit', '.select-units', all_units);
 
