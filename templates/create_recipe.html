@@ -25,7 +25,7 @@ New recipe
                 </div>
                 <div class="col-auto mb-2">
                     <label class="visually-hidden" for="unit_1">Unidad</label>
-                    <select class="form-select" id="unit_1" name="unit_1">
+                    <select class="form-select select-units" id="unit_1" name="unit_1">
                         <option selected>Elegir unidad</option>
                         {% for unit in units %}
                         <option value="{{unit['id']}}">{{unit["name"]}}</option>
@@ -71,7 +71,7 @@ New recipe
         </div>
     </form>
 
-    <form action="/create_unit" method="post">
+    <form action="/create_unit" method="post" id="new_unit_form">
         <div class="row mb-3 align-items-start">
             <div class="col-sm-3 mb-2">
                 <label for="new_unit" class="col-form-label">Nueva unidad</label>
@@ -92,11 +92,21 @@ New recipe
 {% block script %}
 
 <script>
-    i = 1;
+    // Counter initialization
+    let i = 1;
 
+    // Create JavaScript dictionary-type Objects containing key-value pairs made up 
+    // of the id of de unit/ingredient (key) and the name of the unit/ingredient (value)
+    // based on the ingredints and units provided drom the DB upon the page load.
     all_ingredients = {
         {% for ingredient in ingredients %}
-            {{ingredient['id']}}: "{{ingredient["name"]}}",
+            {{ ingredient['id'] }}: "{{ ingredient["name"] }}",
+        {% endfor %}
+    };
+
+    all_units = {
+        {% for unit in units %}
+            {{ unit['id'] }}: "{{ unit["name"] }}",
         {% endfor %}
     };
     
@@ -106,16 +116,22 @@ New recipe
 
         // Add ingredient input lines:
 
-        // Attach the event listener to the button
-        const add_ing_input = document.getElementById('add_ing_input');
+        // Dynamically create the options for <select> inputs for ingredients and units
+        function create_options_string (all_items){
+            let options = "";
+            for (const item in all_items) {
+                options = options + `<option value="${item}">${all_items[item]}</option>`;
+            };
+            return options;
+        };
 
-        function ing_input(number) {
+        // Create the HTML-containing string that will be inserted into the ingredient input row that
+        function create_ing_input(number) {
             console.log("i es " + i);
 
-            let options = "";
-            for (const ing in all_ingredients) {
-                options = options + `<option value="${ing}">${all_ingredients[ing]}</option>`;
-            }
+            // Dynamically create the options for <select> inputs for ingredients and units
+            ingredient_options = create_options_string(all_ingredients);
+            units_options - create_options_string(all_units);
 
 
             return (
@@ -126,18 +142,16 @@ New recipe
                 </div>
                 <div class="col-auto mb-2">
                     <label class="visually-hidden" for="unit_${number}">Unidad</label>
-                    <select class="form-select" id="unit_${number}" name="unit_${number}">
-                        <option selected>Elegir unidad</option>
-                        {% for unit in units %}
-                        <option value="{{unit['id']}}">{{unit["name"]}}</option>
-                        {% endfor %}
-                    </select>
+                    <select class="form-select select-units" id="unit_${number}" name="unit_${number}">
+                        <option selected>Elegir unidad</option>`
+                        + units_options +
+                    `</select>
                 </div>
                 <div class="col-auto mb-2">
                     <label class="visually-hidden" for="ingredient_${number}">Ingrediente</label>
                     <select class="form-select select-ingredients" id="ingredient_${number}" name="ingredient_${number}">
                         <option selected>Elegir ingrediente</option>` 
-                        + options +
+                        + ingredient_options +
                     `</select>
                 </div>
                 <div class="col-auto mb-2">
@@ -149,6 +163,10 @@ New recipe
                 `
             )
         };
+
+        // Attach the event listener to the button
+        // Find the button
+        const add_ing_input = document.querySelector('#add_ing_input');
 
         // Verify if the element is found
         if (add_ing_input) {
@@ -168,7 +186,7 @@ New recipe
                 i += 1;
                 div.setAttribute('id', "ing_" + i);
                 console.log("div created");
-                div.innerHTML = ing_input(i);
+                div.innerHTML = create_ing_input(i);
                 console.log("innerhtml added")
 
                 // Append the new <div> to the form
@@ -192,35 +210,38 @@ New recipe
         // AJAX to add new ingredients and units created to the dropdown menus and POST to back end
 
         // Function to update all dropdowns with the new option
-        function updateAllDropdowns(new_ing_id, new_ing_name) {
-            const dropdowns = document.querySelectorAll('.select-ingredients');
+        function update_all_dropdowns(select_class, new_item_id, new_item_name, all_items) {
+            const dropdowns = document.querySelectorAll(select_class);
             dropdowns.forEach(dropdown => {
                 const newOptionElement = document.createElement('option');
-                newOptionElement.text = new_ing_name;
-                newOptionElement.value = new_ing_id;
+                newOptionElement.text = new_item_name;
+                newOptionElement.value = new_item_id;
                 dropdown.appendChild(newOptionElement);
-                all_ingredients.new_ing_id = new_ing_name;
+                all_items.new_item_id = new_item_name;
             });
-        }
+        };
 
-        // JavaScript to handle the second form submission and AJAX request
-        document.querySelector('#new_ing_form').addEventListener('submit', function (event) {
+
+        // JavaScript function to handle the form submission for new ingredients and units and AJAX request
+        function post_new_item_update_dropdowns(form_id, input_id, post_route, select_class, all_items) {
+
+            document.querySelector(form_id).addEventListener('submit', function (event) {
             event.preventDefault();
 
             // Get the new option value
-            const newOption = document.querySelector('#new_ing').value;
+            const newOption = document.querySelector(input_id).value;
 
             // Send the AJAX request to the backend
             // https://www.freecodecamp.org/news/how-to-use-fetch-api/
             // https://stackoverflow.com/questions/63502630/how-to-use-fetch-to-get-post-data-from-flask
             // https://stackoverflow.com/questions/67865889/what-is-different-between-fetch-and-jquery-ajax-post
-            fetch('/create_ingredient', {
+            fetch(post_route, {
                 method: 'POST',
                 headers: {
                     'Content-type': 'application/json'
                 },
                 body: JSON.stringify({
-                    "new_ing": newOption
+                    "new_item_name": newOption
                 })
             })
                 .then(response => {
@@ -233,29 +254,20 @@ New recipe
                 .then(data => {
                     console.log(data);
                     // Update all dropdowns with the new option
-                    updateAllDropdowns(data.ing_id, data.ing_name);
+                    update_all_dropdowns(select_class, data.item_id, data.item_name, all_items);
 
                     // Clear the input field
-                    document.querySelector('#new_ing').value = '';
+                    document.querySelector(input_id).value = '';
                 })
                 .catch(error => {
                     console.error('Fetch Error:', error);
                 });
         });
+        };
 
-        // // Handle dynamically adding new dropdowns
-        // document.getElementById('add-dropdown').addEventListener('click', function() {
-        //     // Create a new dropdown element
-        //     const newDropdown = document.createElement('select');
-        //     newDropdown.classList.add('select-ingredients');
+        post_new_item_update_dropdowns('#new_ing_form', '#new_ing', '/create_ingredient', '.select-ingredients', all_ingredients);
+        post_new_item_update_dropdowns('#new_unit_form', '#new_unit', '/create_unit', '.select-units', all_units);
 
-        //     // Get options from an existing dropdown (can be the first one)
-        //     const firstDropdown = document.querySelector('.select-ingredients');
-        //     newDropdown.innerHTML = firstDropdown.innerHTML;
-
-        //     // Append the new dropdown to the container
-        //     document.getElementById('dynamic-dropdowns').appendChild(newDropdown);
-        // });
     });
 </script>
 

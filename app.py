@@ -396,18 +396,24 @@ def shopping_list():
 def create_unit():
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
-        new_unit = request.form.get("new_unit")
+        request_data = request.get_json()
 
-        if not new_unit:
+        if "new_item_name" not in request_data:
             return render_template("result.html", msg="Please input a valid ingredient.")
         
-        new_unit = new_unit.lower()
+        new_unit_name = request_data["new_item_name"]
+        
+        new_unit_name = new_unit_name.lower()
 
         try:
             # Connect to SQLite3 database and execute the INSERT
             with sqlite3.connect('meal_planner.db') as con:
                 cur = con.cursor()
-                cur.execute("INSERT INTO units (name) VALUES (?)", (new_unit,))
+                cur.execute("INSERT INTO units (name) VALUES (?) RETURNING id", (new_unit_name,))
+                # get the returning id from the inserted row
+                row = cur.fetchone()
+                (inserted_id, ) = row if row else None
+
                 con.commit()
                 # msg = "Record successfully edited in the database"
         
@@ -423,14 +429,13 @@ def create_unit():
         
         # check if the request came from create_recipe or edit_recipe
         # Only edit_recipe passes the recipe_id
-        recipe_id = request.form.get("recipe_id")
-        if not recipe_id:
-            print("not recipe id")
-            # Redirect to create recipe to start again the creation
-            return redirect('create_recipe') 
+        if "unit_id" not in request_data:
+            print("No unit id so the request came from create_recipe")
+
+            # Return the new option as a JSON response
+            return jsonify({"item_id": inserted_id, "item_name": new_unit_name})
         else:
-            print("else")
-            print(recipe_id)
+            recipe_id = request_data["recipe_id"]
             return display_edit_recipe(recipe_id)
 
 
@@ -440,19 +445,19 @@ def create_ingredient():
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
         request_data = request.get_json()
-        
-        new_ing = request_data["new_ing"]
 
-        if not new_ing:
+        if "new_item_name" not in request_data:
             return render_template("result.html", msg="Please input a valid ingredient.")
+        
+        new_ing_name = request_data["new_item_name"]
 
-        new_ing = new_ing.lower()
+        new_ing_name = new_ing_name.lower()
 
         try:
             # Connect to SQLite3 database and execute the INSERT
             with sqlite3.connect('meal_planner.db') as con:
                 cur = con.cursor()
-                cur.execute("INSERT INTO ingredients (name) VALUES (?) RETURNING id", (new_ing,))
+                cur.execute("INSERT INTO ingredients (name) VALUES (?) RETURNING id", (new_ing_name,))
                 # get the returning id from the inserted row
                 row = cur.fetchone()
                 (inserted_id, ) = row if row else None
@@ -473,15 +478,11 @@ def create_ingredient():
         # Only edit_recipe passes the recipe_id        
         if "recipe_id" not in request_data:
             print("No recipe id so the request came from create_recipe")
-            # Redirect to create recipe to start again the creation
-            # return redirect('create_recipe') 
 
             # Return the new option as a JSON response
-            return jsonify({"ing_id": inserted_id, "ing_name": new_ing})
+            return jsonify({"item_id": inserted_id, "item_name": new_ing_name})
         else:
             recipe_id = request_data["recipe_id"]
-            print("else")
-            print(recipe_id)
             return display_edit_recipe(recipe_id)
 
 
