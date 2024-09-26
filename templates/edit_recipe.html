@@ -7,6 +7,7 @@ Edit recipe
 {% block main %}
 <div class="container-fluid">
     <h2 class="pb-3">Editar receta</h2>
+
     <!-- RECIPE NAME -->
     <form action="/edit_recipe" method="post" class="mb-4">
         <input name="recipe_id" type="hidden" value="{{ recipe[0]['id'] }}">
@@ -15,38 +16,40 @@ Edit recipe
             <input autofocus type="text" class="form-control" id="recipe_name" name="recipe_name"
                 value="{{ recipe[0]['name'] }}">
         </div>
-    <!-- INGREDIENTS -->
+
+        <!-- INGREDIENTS -->
         <section id="ingredients">
             <p class="form-label">Ingredientes</p>
 
             {% for ing in ing_used %}
-            <div class="row mb-3" id="ing_{{ loop.index }}">
-                <div class="col-auto mb-2">
+            <div class="row mb-2" id="ing_{{ loop.index }}">
+                <div class="col-sm-3 mb-2">
                     <label class="visually-hidden" for="quantity_{{ loop.index }}">Cantidad</label>
-                    <input type="number" class="form-control" id="quantity_{{ loop.index }}" placeholder="Cantidad" name="quantity_{{ loop.index }}"
-                        value="{{ ing["quantity"] }}">
+                    <input type="number" class="form-control" id="quantity_{{ loop.index }}" placeholder="Cantidad"
+                        name="quantity_{{ loop.index }}" value="{{ ing["quantity"] }}" min="0">
                 </div>
-                <div class="col-auto mb-2">
+                <div class="col-sm-3 mb-2">
                     <label class="visually-hidden" for="unit_{{ loop.index }}">Unidad</label>
-                    <select class="form-select" id="unit_{{ loop.index }}" name="unit_{{ loop.index }}">
-                        {% for unit in all_units %}
-                            {% if unit['id'] == ing['unit_id'] %}
-                                <option value="{{unit['id']}}" selected>{{unit["name"]}}</option>
-                            {% else %}
-                                <option value="{{unit['id']}}">{{unit["name"]}}</option>
-                            {% endif %}
+                    <select class="form-select  select-units" id="unit_{{ loop.index }}" name="unit_{{ loop.index }}">
+                        {% for unit in units %}
+                        {% if unit['id'] == ing['unit_id'] %}
+                        <option value="{{unit['id']}}" selected>{{unit["name"]}}</option>
+                        {% else %}
+                        <option value="{{unit['id']}}">{{unit["name"]}}</option>
+                        {% endif %}
                         {% endfor %}
                     </select>
                 </div>
-                <div class="col-auto mb-2">
+                <div class="col-sm-4 mb-2">
                     <label class="visually-hidden" for="ingredient_{{ loop.index }}">Ingrediente</label>
-                    <select class="form-select" id="ingredient_{{ loop.index }}" name="ingredient_{{ loop.index }}">
-                        {% for ingredient in all_ingredients %}
-                            {% if ingredient['id'] == ing['ing_id'] %}
-                                <option value="{{ingredient['id']}}" selected>{{ingredient["name"]}}</option>
-                            {% else %}
-                                <option value="{{ingredient['id']}}">{{ingredient["name"]}}</option>
-                            {% endif %}
+                    <select class="form-select select-ingredients" id="ingredient_{{ loop.index }}"
+                        name="ingredient_{{ loop.index }}">
+                        {% for ingredient in ingredients %}
+                        {% if ingredient['id'] == ing['ing_id'] %}
+                        <option value="{{ingredient['id']}}" selected>{{ingredient["name"]}}</option>
+                        {% else %}
+                        <option value="{{ingredient['id']}}">{{ingredient["name"]}}</option>
+                        {% endif %}
                         {% endfor %}
                     </select>
                 </div>
@@ -60,7 +63,8 @@ Edit recipe
         </section>
 
         <button type="button" class="btn btn-color mb-3" id="add_ing_input">Agregar ingrediente</button>
-    <!-- INSTRUCTIONS -->
+
+        <!-- INSTRUCTIONS -->
         <div class="mb-3">
             <label for="recipe_instructions" class="form-label">Instrucciones</label>
             <textarea rows="7" class="form-control" id="recipe_instructions"
@@ -74,7 +78,7 @@ Edit recipe
     <!-- Add ingredients and units -->
     <h4 class="mb-3">Falta algún ingrediente o una unidad?</h4>
 
-    <form action="/create_ingredient" method="post">
+    <form action="/create_ingredient" method="post" id="new_ing_form">
         <div class="row mb-3">
             <div class="col-sm-3 mb-2">
                 <label for="new_ing" class="col-form-label">Nuevo ingrediente</label>
@@ -89,7 +93,7 @@ Edit recipe
         </div>
     </form>
 
-    <form action="/create_unit" method="post">
+    <form action="/create_unit" method="post" id="new_unit_form">
         <div class="row mb-3 align-items-start">
             <div class="col-sm-3 mb-2">
                 <label for="new_unit" class="col-form-label">Nueva unidad</label>
@@ -108,10 +112,24 @@ Edit recipe
 
 {% endblock %}
 
-{% block script %} 
+{% block script %}
 
 <script>
-    
+
+    // Create JavaScript dictionary-type Objects containing key-value pairs made up 
+    // of the id of de unit/ingredient (key) and the name of the unit/ingredient (value)
+    // based on the ingredints and units provided drom the DB upon the page load.
+    all_ingredients = {
+        {% for ingredient in ingredients %}
+            {{ ingredient['id'] }}: "{{ ingredient["name"] }}",
+        {% endfor %}
+    };
+
+    all_units = {
+        {% for unit in units %}
+            {{ unit['id'] }}: "{{ unit["name"] }}",
+        {% endfor %}
+    };
 
     document.addEventListener('DOMContentLoaded', function () {
         console.log("Script loaded!"); // Check if the script is loaded
@@ -119,35 +137,41 @@ Edit recipe
         // Check the amount of input field (i.e.minus buttons) existing after load
         const button_list = document.querySelectorAll(".minus-button");
         let i = button_list.length;
-        
-        // Helper functions
 
-        // Create the HTML code to be added: input and label tags
-        function ing_input(number) {
-            console.log("i es " + i);
+        // Dynamically create the options for <select> inputs for ingredients and units
+        function create_options_string(all_items) {
+            let options = "";
+            for (const item in all_items) {
+                options = options + `<option value="${item}">${all_items[item]}</option>`;
+            };
+            return options;
+        };
+
+        // Create the HTML-containing string that will be inserted into the ingredient input row that
+        function create_ing_input(number) {
+            // Dynamically create the options for <select> inputs for ingredients and units
+            ingredient_options = create_options_string(all_ingredients);
+            units_options = create_options_string(all_units);
+
             return (
                 `
-                <div class="col-auto mb-2">
+                <div class="col-sm-3 mb-2">
                     <label class="visually-hidden" for="quantity_${number}">Quantity</label>
                     <input type="number" class="form-control" id="quantity_${number}" placeholder="Cantidad" name="quantity_${number}" min="0">
                 </div>
-                <div class="col-auto mb-2">
+                <div class="col-sm-3 mb-2">
                     <label class="visually-hidden" for="unit_${number}">Unidad</label>
-                    <select class="form-select" id="unit_${number}" name="unit_${number}">
-                        <option selected>Elegir unidad</option>
-                        {% for unit in all_units %}
-                        <option value="{{unit['id']}}">{{unit["name"]}}</option>
-                        {% endfor %}
-                    </select>
+                    <select class="form-select select-units" id="unit_${number}" name="unit_${number}">
+                        <option selected>Elegir unidad</option>`
+                + units_options +
+                `</select>
                 </div>
-                <div class="col-auto mb-2">
+                <div class="col-sm-4 mb-2">
                     <label class="visually-hidden" for="ingredient_${number}">Ingrediente</label>
-                    <select class="form-select" id="ingredient_${number}" name="ingredient_${number}">
-                        <option selected>Elegir ingrediente</option>
-                        {% for ingredient in all_ingredients %}
-                        <option value="{{ingredient['id']}}">{{ingredient["name"]}}</option>
-                        {% endfor %}
-                    </select>
+                    <select class="form-select select-ingredients" id="ingredient_${number}" name="ingredient_${number}">
+                        <option selected>Elegir ingrediente</option>`
+                + ingredient_options +
+                `</select>
                 </div>
                 <div class="col-auto mb-2">
                     <button type="button" class="btn btn-secondary minus-button" id="remove_ing_input_${number}">
@@ -156,32 +180,33 @@ Edit recipe
                 </div>
 
                 `
-            )};
+            )
+        };
 
         // Create function to remove input line
         function remove_ing_input(button_id) {
-            document.querySelector("#" + button_id).addEventListener('click', function(event) {
-            console.log("Minus button clicked");
-            // Prevent default behavior
-            event.preventDefault();
-            console.log(event.target.id);
-            target_id = event.target.id;
-            index = target_id.substring(target_id.length - 1);
-            console.log(index);
-            document.querySelector("#ing_" + index).remove();
-            console.log("Input removed!");
-        })
+            document.querySelector("#" + button_id).addEventListener('click', function (event) {
+
+                // Prevent default behavior
+                event.preventDefault();
+                // Get the number that indexes the id
+                target_id = event.target.id;
+                index = target_id.substring(target_id.length - 1);
+
+                document.querySelector("#ing_" + index).remove();
+
+            })
         }
 
         // Create remove_input_ing functions for the existing input fields
         for (let i = 0; i < button_list.length; i++) {
             remove_ing_input(button_list[i].getAttribute("id"));
-        } 
+        }
 
 
-        // Attach the event listener to the button
+        // Find the button that will have the event listener
         const add_ing_input = document.getElementById('add_ing_input');
-        
+
         // Verify if the element is found
         if (add_ing_input) {
             console.log("add_ing_input element found!");
@@ -193,14 +218,15 @@ Edit recipe
                 // Log to verify button click
                 console.log("Button clicked!");
 
+                // Increment the counter
+                i += 1;
+
                 // Create a new <div> element
                 const div = document.createElement("div");
                 div.classList.add("row");
                 div.classList.add("mb-2");
-                i += 1;
                 div.setAttribute('id', "ing_" + i);
-                console.log("div created");
-                div.innerHTML = ing_input(i);
+                div.innerHTML = create_ing_input(i);
 
                 // Append the new <div> to the form
                 document.querySelector("#ingredients").appendChild(div);
@@ -211,7 +237,68 @@ Edit recipe
             });
         } else {
             console.log("Button not found!");
-        }
+        };
+
+        // AJAX to add new ingredients and units created to the dropdown menus and POST to back end
+
+        // Function to update all dropdowns with the new option
+        function update_all_dropdowns(select_class, new_item_id, new_item_name, all_items) {
+            const dropdowns = document.querySelectorAll(select_class);
+            dropdowns.forEach(dropdown => {
+                const newOptionElement = document.createElement('option');
+                newOptionElement.text = new_item_name;
+                newOptionElement.value = new_item_id;
+                dropdown.appendChild(newOptionElement);
+                all_items[new_item_id] = new_item_name;
+            });
+        };
+
+        // JavaScript function to handle the form submission for new ingredients and units and AJAX request
+        function post_new_item_update_dropdowns(form_id, input_id, post_route, select_class, all_items) {
+
+            document.querySelector(form_id).addEventListener('submit', function (event) {
+                event.preventDefault();
+
+                // Get the new option value
+                const newOption = document.querySelector(input_id).value;
+
+                // Send the AJAX request to the backend
+                // https://www.freecodecamp.org/news/how-to-use-fetch-api/
+                // https://stackoverflow.com/questions/63502630/how-to-use-fetch-to-get-post-data-from-flask
+                // https://stackoverflow.com/questions/67865889/what-is-different-between-fetch-and-jquery-ajax-post
+                fetch(post_route, {
+                    method: 'POST',
+                    headers: {
+                        'Content-type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        "new_item_name": newOption
+                    })
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            // Handle any errors returned by the server
+                            return response.json().then(error => { throw new Error(error.error); });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log(data);
+                        // Update all dropdowns with the new option
+                        update_all_dropdowns(select_class, data.item_id, data.item_name, all_items);
+
+                        // Clear the input field
+                        document.querySelector(input_id).value = '';
+                    })
+                    .catch(error => {
+                        console.error('Fetch Error:', error);
+                    });
+            });
+        };
+
+        // Call functions for new ingredients and units
+        post_new_item_update_dropdowns('#new_ing_form', '#new_ing', '/create_ingredient', '.select-ingredients', all_ingredients);
+        post_new_item_update_dropdowns('#new_unit_form', '#new_unit', '/create_unit', '.select-units', all_units);
 
 
     });

@@ -195,10 +195,10 @@ def display_edit_recipe(edited_recipe_id):
         recipe = cur.fetchall()
 
         cur.execute("SELECT * FROM ingredients ORDER BY name ASC")
-        all_ingredients = cur.fetchall()
+        ingredients = cur.fetchall()
 
         cur.execute("SELECT * FROM units ORDER BY name ASC")
-        all_units = cur.fetchall()
+        units = cur.fetchall()
 
         # Execute the second SELECT query on 'ing_used' table
         cur.execute("SELECT ing_used.quantity, ingredients.name AS ing_name, ingredients.id AS ing_id, units.name AS unit_name, units.id AS unit_id FROM ing_used JOIN ingredients ON ingredients.id = ing_used.ing_id JOIN units ON units.id = ing_used.unit_id WHERE ing_used.recipe_id = ?", (edited_recipe_id,))
@@ -207,7 +207,7 @@ def display_edit_recipe(edited_recipe_id):
         # Close the connection
         db_close(cur)
 
-        return render_template("edit_recipe.html", recipe=recipe, ing_used=ing_used, all_ingredients=all_ingredients, all_units=all_units)
+        return render_template("edit_recipe.html", recipe=recipe, ing_used=ing_used, ingredients=ingredients, units=units)
 
 # Route to form used to edit recipe and save to the database the revised recipe
 # FALTA AGREGAR NUEVOS INGREDIENTES O UNIDADES (IDEM CREATE_RECIPE)
@@ -429,14 +429,14 @@ def create_unit():
         
         # check if the request came from create_recipe or edit_recipe
         # Only edit_recipe passes the recipe_id
-        if "unit_id" not in request_data:
-            print("No unit id so the request came from create_recipe")
+        # if "recipe_id" not in request_data:
+        print("No unit id so the request came from create_recipe")
 
             # Return the new option as a JSON response
-            return jsonify({"item_id": inserted_id, "item_name": new_unit_name})
-        else:
-            recipe_id = request_data["recipe_id"]
-            return display_edit_recipe(recipe_id)
+        return jsonify({"item_id": inserted_id, "item_name": new_unit_name})
+        # else:
+        #     # recipe_id = request_data["recipe_id"]
+        #     return jsonify({"item_id": inserted_id, "item_name": new_unit_name})
 
 
 # Create new ingredient

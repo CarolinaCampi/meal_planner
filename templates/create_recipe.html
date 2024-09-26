@@ -44,7 +44,7 @@ New recipe
             </div>
         </section>
 
-        <button class="btn btn-color mb-3" id="add_ing_input">Agregar ingrediente</button>
+        <button type="button" class="btn btn-color mb-3" id="add_ing_input">Agregar ingrediente</button>
 
         <!-- INSTRUCTIONS -->
         <div class="mb-3">
@@ -55,6 +55,7 @@ New recipe
 
     </form>
 
+    <!-- Add ingredients and units -->
     <h4 class="mb-3">Falta algún ingrediente o una unidad?</h4>
 
     <form action="/create_ingredient" method="post" id="new_ing_form">
@@ -66,7 +67,7 @@ New recipe
                 <input type="text" class="form-control" id="new_ing" name="new_ing">
             </div>
             <div class="col-auto mb-2">
-                <button type="submit" id="create_ingredient" class="btn btn-color">Agregar</button>
+                <button class="btn btn-color">Agregar</button>
             </div>
         </div>
     </form>
@@ -106,10 +107,10 @@ New recipe
 
     all_units = {
         {% for unit in units %}
-            {{ unit['id'] }}: "{{ unit["name"] }}",
+            {{unit['id']}}: "{{unit["name"]}}",
         {% endfor %}
     };
-    
+
 
     document.addEventListener('DOMContentLoaded', function () {
         console.log("Script loaded!"); // Check if the script is loaded
@@ -117,7 +118,7 @@ New recipe
         // Add ingredient input lines:
 
         // Dynamically create the options for <select> inputs for ingredients and units
-        function create_options_string (all_items){
+        function create_options_string(all_items) {
             let options = "";
             for (const item in all_items) {
                 options = options + `<option value="${item}">${all_items[item]}</option>`;
@@ -129,7 +130,7 @@ New recipe
         function create_ing_input(number) {
             // Dynamically create the options for <select> inputs for ingredients and units
             ingredient_options = create_options_string(all_ingredients);
-            units_options - create_options_string(all_units);
+            units_options = create_options_string(all_units);
 
             return (
                 `
@@ -141,15 +142,15 @@ New recipe
                     <label class="visually-hidden" for="unit_${number}">Unidad</label>
                     <select class="form-select select-units" id="unit_${number}" name="unit_${number}">
                         <option selected>Elegir unidad</option>`
-                        + units_options +
-                    `</select>
+                + units_options +
+                `</select>
                 </div>
                 <div class="col-auto mb-2">
                     <label class="visually-hidden" for="ingredient_${number}">Ingrediente</label>
                     <select class="form-select select-ingredients" id="ingredient_${number}" name="ingredient_${number}">
-                        <option selected>Elegir ingrediente</option>` 
-                        + ingredient_options +
-                    `</select>
+                        <option selected>Elegir ingrediente</option>`
+                + ingredient_options +
+                `</select>
                 </div>
                 <div class="col-auto mb-2">
                     <button type="button" class="btn btn-secondary" id="remove_ing_input_${number}">
@@ -161,7 +162,20 @@ New recipe
             )
         };
 
-        
+        // Create function to remove input line
+        function remove_ing_input(button_id) {
+            document.querySelector("#" + button_id).addEventListener('click', function (event) {
+                // Prevent default behavior
+                event.preventDefault();
+
+                target_id = event.target.id;
+                // Get the number that indexes the id
+                index = target_id.substring(target_id.length - 1);
+
+                document.querySelector("#ing_" + index).remove();
+            });
+        };
+
         // Find the button that will have the event listener
         const add_ing_input = document.querySelector('#add_ing_input');
 
@@ -185,28 +199,19 @@ New recipe
                 div.classList.add("row");
                 div.classList.add("mb-2");
                 div.setAttribute('id', "ing_" + i);
-                console.log("div created");
                 div.innerHTML = create_ing_input(i);
-                console.log("innerhtml added")
 
                 // Append the new <div> to the form
                 document.querySelector("#ingredients").appendChild(div);
 
                 // Create function to remove input line
-                document.querySelector("#remove_ing_input_" + i).addEventListener('click', function (event) {
-                    // Prevent default behavior
-                    event.preventDefault();
+                remove_ing_input("remove_ing_input_" + i);
 
-                    target_id = event.target.id;
-                    // Get the number that indexes the id
-                    index = target_id.substring(target_id.length - 1);
-                    
-                    document.querySelector("#ing_" + index).remove();
-                })
+
             });
         } else {
             console.log("Button not found!");
-        }
+        };
 
         // AJAX to add new ingredients and units created to the dropdown menus and POST to back end
 
@@ -218,7 +223,7 @@ New recipe
                 newOptionElement.text = new_item_name;
                 newOptionElement.value = new_item_id;
                 dropdown.appendChild(newOptionElement);
-                all_items.new_item_id = new_item_name;
+                all_items[new_item_id] = new_item_name;
             });
         };
 
@@ -227,43 +232,43 @@ New recipe
         function post_new_item_update_dropdowns(form_id, input_id, post_route, select_class, all_items) {
 
             document.querySelector(form_id).addEventListener('submit', function (event) {
-            event.preventDefault();
+                event.preventDefault();
 
-            // Get the new option value
-            const newOption = document.querySelector(input_id).value;
+                // Get the new option value
+                const newOption = document.querySelector(input_id).value;
 
-            // Send the AJAX request to the backend
-            // https://www.freecodecamp.org/news/how-to-use-fetch-api/
-            // https://stackoverflow.com/questions/63502630/how-to-use-fetch-to-get-post-data-from-flask
-            // https://stackoverflow.com/questions/67865889/what-is-different-between-fetch-and-jquery-ajax-post
-            fetch(post_route, {
-                method: 'POST',
-                headers: {
-                    'Content-type': 'application/json'
-                },
-                body: JSON.stringify({
-                    "new_item_name": newOption
+                // Send the AJAX request to the backend
+                // https://www.freecodecamp.org/news/how-to-use-fetch-api/
+                // https://stackoverflow.com/questions/63502630/how-to-use-fetch-to-get-post-data-from-flask
+                // https://stackoverflow.com/questions/67865889/what-is-different-between-fetch-and-jquery-ajax-post
+                fetch(post_route, {
+                    method: 'POST',
+                    headers: {
+                        'Content-type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        "new_item_name": newOption
+                    })
                 })
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        // Handle any errors returned by the server
-                        return response.json().then(error => { throw new Error(error.error); });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log(data);
-                    // Update all dropdowns with the new option
-                    update_all_dropdowns(select_class, data.item_id, data.item_name, all_items);
+                    .then(response => {
+                        if (!response.ok) {
+                            // Handle any errors returned by the server
+                            return response.json().then(error => { throw new Error(error.error); });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log(data);
+                        // Update all dropdowns with the new option
+                        update_all_dropdowns(select_class, data.item_id, data.item_name, all_items);
 
-                    // Clear the input field
-                    document.querySelector(input_id).value = '';
-                })
-                .catch(error => {
-                    console.error('Fetch Error:', error);
-                });
-        });
+                        // Clear the input field
+                        document.querySelector(input_id).value = '';
+                    })
+                    .catch(error => {
+                        console.error('Fetch Error:', error);
+                    });
+            });
         };
 
         // Call functions for new ingredients and units
