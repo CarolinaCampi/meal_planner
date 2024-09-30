@@ -26,7 +26,7 @@ Edit recipe
                 <div class="col-sm-3 mb-2">
                     <label class="visually-hidden" for="quantity_{{ loop.index }}">Cantidad</label>
                     <input type="number" class="form-control" id="quantity_{{ loop.index }}" placeholder="Cantidad"
-                        name="quantity_{{ loop.index }}" value="{{ ing["quantity"] }}" min="0">
+                        name="quantity_{{ loop.index }}" value="{{ ing["quantity"] }}" min="0" step="0.01">
                 </div>
                 <div class="col-sm-3 mb-2">
                     <label class="visually-hidden" for="unit_{{ loop.index }}">Unidad</label>
@@ -141,9 +141,11 @@ Edit recipe
         // Dynamically create the options for <select> inputs for ingredients and units
         function create_options_string(all_items) {
             let options = "";
+
             for (const item in all_items) {
                 options = options + `<option value="${item}">${all_items[item]}</option>`;
             };
+
             return options;
         };
 

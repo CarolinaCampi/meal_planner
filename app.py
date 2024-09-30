@@ -71,7 +71,6 @@ def index():
 
 
 # Route to form used to add a new recipe to the database
-# FALTA AGREGAR HANDLING DE NUEVOS INGREDINTES Y UNIDADES
 @app.route("/create_recipe", methods=["GET", "POST"])
 def create_recipe():
     # User reached route via POST (as by submitting a form via POST)
@@ -210,7 +209,6 @@ def display_edit_recipe(edited_recipe_id):
         return render_template("edit_recipe.html", recipe=recipe, ing_used=ing_used, ingredients=ingredients, units=units)
 
 # Route to form used to edit recipe and save to the database the revised recipe
-# FALTA AGREGAR NUEVOS INGREDIENTES O UNIDADES (IDEM CREATE_RECIPE)
 @app.route("/edit_recipe", methods=["GET", "POST"])
 def edit_recipe():
     # User reached route via POST (as by submitting a form via POST)
@@ -320,7 +318,6 @@ def delete_recipe():
     
 
 # Route to access the meal planner functionality
-# Add export and shopping list capabilities: tal vez que se pueda copiar imprimir a pantalla y copiar?
 @app.route("/create_plan", methods=["GET", "POST"])
 def create_plan():
     # User reached route via POST (as by submitting a form via POST)
@@ -391,7 +388,6 @@ def shopping_list():
         return render_template("shopping_list.html", recipes=recipes, ing_used=ing_used)
     
 # Create new unit
-# REVISAR CUANDO ESTAMOS EN EDIT_RECIPE
 @app.route("/create_unit", methods=["POST"])
 def create_unit():
     # User reached route via POST (as by submitting a form via POST)
