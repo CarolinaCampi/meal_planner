@@ -13,6 +13,7 @@ New recipe
             <label for="recipe_name" class="form-label">Nombre</label>
             <input autofocus type="text" class="form-control" id="recipe_name" name="recipe_name">
         </div>
+
         <!-- INGREDIENTS -->
         <section id="ingredients">
             <p class="form-label">Ingredientes</p>
@@ -97,7 +98,7 @@ New recipe
 
     // Create JavaScript dictionary-type Objects containing key-value pairs made up 
     // of the id of de unit/ingredient (key) and the name of the unit/ingredient (value)
-    // based on the ingredints and units provided drom the DB upon the page load.
+    // based on the ingredients and units provided from the DB upon the page load.
     all_ingredients = {
         {% for ingredient in ingredients %}
             {{ ingredient['id'] }}: "{{ ingredient["name"] }}",
@@ -125,8 +126,9 @@ New recipe
             return options;
         };
 
-        // Create the HTML-containing string that will be inserted into the ingredient input row that
+        // Create the HTML-containing string that will be inserted into the ingredient input row
         function create_ing_input(number) {
+
             // Dynamically create the options for <select> inputs for ingredients and units
             ingredient_options = create_options_string(all_ingredients);
             units_options = create_options_string(all_units);
@@ -165,12 +167,12 @@ New recipe
         function remove_ing_input(button_id) {
             document.querySelector("#" + button_id).addEventListener('click', function (event) {
                 // Prevent default behavior
-                event.preventDefault();
-
+                event.preventDefault(); 
+                // Get the id of the clicked element
                 target_id = event.target.id;
                 // Get the number that indexes the id
                 index = target_id.substring(target_id.length - 1);
-
+                // remove the row whose id is ing_index
                 document.querySelector("#ing_" + index).remove();
             });
         };
@@ -218,10 +220,10 @@ New recipe
         function update_all_dropdowns(select_class, new_item_id, new_item_name, all_items) {
             const dropdowns = document.querySelectorAll(select_class);
             dropdowns.forEach(dropdown => {
-                const newOptionElement = document.createElement('option');
-                newOptionElement.text = new_item_name;
-                newOptionElement.value = new_item_id;
-                dropdown.appendChild(newOptionElement);
+                const new_option_element = document.createElement('option');
+                new_option_element.text = new_item_name;
+                new_option_element.value = new_item_id;
+                dropdown.appendChild(new_option_element);
                 all_items[new_item_id] = new_item_name;
             });
         };
@@ -234,7 +236,7 @@ New recipe
                 event.preventDefault();
 
                 // Get the new option value
-                const newOption = document.querySelector(input_id).value;
+                const new_option = document.querySelector(input_id).value;
 
                 // Send the AJAX request to the backend
                 // https://www.freecodecamp.org/news/how-to-use-fetch-api/
@@ -246,7 +248,7 @@ New recipe
                         'Content-type': 'application/json'
                     },
                     body: JSON.stringify({
-                        "new_item_name": newOption
+                        "new_item_name": new_option
                     })
                 })
                     .then(response => {

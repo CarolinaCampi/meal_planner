@@ -8,8 +8,9 @@ Edit recipe
 <div class="container-fluid">
     <h2 class="pb-3">Editar receta</h2>
 
-    <!-- RECIPE NAME -->
+    
     <form action="/edit_recipe" method="post" class="mb-4">
+        <!-- RECIPE NAME -->
         <input name="recipe_id" type="hidden" value="{{ recipe[0]['id'] }}">
         <div class="mb-3">
             <label for="recipe_name" class="form-label">Nombre</label>
@@ -45,11 +46,12 @@ Edit recipe
                     <select class="form-select select-ingredients" id="ingredient_{{ loop.index }}"
                         name="ingredient_{{ loop.index }}">
                         {% for ingredient in ingredients %}
-                        {% if ingredient['id'] == ing['ing_id'] %}
-                        <option value="{{ingredient['id']}}" selected>{{ingredient["name"]}}</option>
-                        {% else %}
-                        <option value="{{ingredient['id']}}">{{ingredient["name"]}}</option>
-                        {% endif %}
+                        <!-- Show as selected the ones that are in the recipe already, given as it's a pre-filled form -->
+                            {% if ingredient['id'] == ing['ing_id'] %}
+                            <option value="{{ingredient['id']}}" selected>{{ingredient["name"]}}</option>
+                            {% else %}
+                            <option value="{{ingredient['id']}}">{{ingredient["name"]}}</option>
+                            {% endif %}
                         {% endfor %}
                     </select>
                 </div>
@@ -118,7 +120,7 @@ Edit recipe
 
     // Create JavaScript dictionary-type Objects containing key-value pairs made up 
     // of the id of de unit/ingredient (key) and the name of the unit/ingredient (value)
-    // based on the ingredints and units provided drom the DB upon the page load.
+    // based on the ingredients and units provided from the DB upon the page load.
     all_ingredients = {
         {% for ingredient in ingredients %}
             {{ ingredient['id'] }}: "{{ ingredient["name"] }}",
@@ -134,7 +136,7 @@ Edit recipe
     document.addEventListener('DOMContentLoaded', function () {
         console.log("Script loaded!"); // Check if the script is loaded
 
-        // Check the amount of input field (i.e.minus buttons) existing after load
+        // Check the amount of input field (i.e. minus buttons) existing after load
         const button_list = document.querySelectorAll(".minus-button");
         let i = button_list.length;
 
@@ -191,20 +193,20 @@ Edit recipe
 
                 // Prevent default behavior
                 event.preventDefault();
-                // Get the number that indexes the id
+                // Get the id of the index clicked
                 target_id = event.target.id;
+                // Get the number that indexes the id
                 index = target_id.substring(target_id.length - 1);
-
+                // Remove the row of id ing_index
                 document.querySelector("#ing_" + index).remove();
 
-            })
-        }
+            });
+        };
 
         // Create remove_input_ing functions for the existing input fields
         for (let i = 0; i < button_list.length; i++) {
             remove_ing_input(button_list[i].getAttribute("id"));
-        }
-
+        };
 
         // Find the button that will have the event listener
         const add_ing_input = document.getElementById('add_ing_input');

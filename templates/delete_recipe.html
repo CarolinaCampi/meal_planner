@@ -5,12 +5,15 @@
 {% endblock %}
 
 {% block main %}
-<h3 class="pb-3">Borrar receta</h3>
-<form action="/delete_recipe" method="post" class="mb-4">
-    <input name="recipe_id" type="hidden" value="{{ recipe[0]['id'] }}">
-    <p><strong>La eliminación de recetas es permanente. Está seguro que desear eliminar la receta de {{ recipe[0]['name'] }}?</strong></p>
-    <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Eliminar</button>
-</form>
+
+    <h3 class="pb-3">Borrar receta</h3>
+
+    <form action="/delete_recipe" method="post" class="mb-4">
+        <input name="recipe_id" type="hidden" value="{{ recipe[0]['id'] }}">
+        <p><strong>La eliminación de recetas es permanente. Está seguro que desear eliminar la receta de <span class="text-uppercase fs-5">{{ recipe[0]['name'] }}</span>?</strong></p>
+        <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Eliminar</button>
+    </form>
+
 {% endblock %}
 
 {% block script %}

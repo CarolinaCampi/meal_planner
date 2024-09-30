@@ -6,48 +6,48 @@ Recipe
 
 {% block main %}
 
-<section class="container-fluid">
-    <div id="recipe" class="card mb-3">
-        <div class="card-header d-flex justify-content-between">
-            <h3 class="m-0">{{ recipe[0]["name"] }}</h3>
-            <button id="copy-recipe" type="button" class="btn btn-outline-secondary btn-sm"><i
-                    class="bi bi-clipboard"></i><i class="bi bi-clipboard-check d-none"></i></button>
-        </div>
-        <div class="card-body">
-            <div class="card-text">
-                <h5>Ingredientes</h5>
-                <ul>
-                    {% for ing in ing_used %}
-                    <li>{{ ing["quantity"] }} {{ ing["unit_name"] }} de {{ ing["ing_name"] }} </li>
-                    {% endfor %}
-                </ul>
+    <section class="container-fluid">
+        <div id="recipe" class="card mb-3">
+            <div class="card-header d-flex justify-content-between">
+                <h3 class="m-0">{{ recipe[0]["name"] }}</h3>
+                <button id="copy-recipe" type="button" class="btn btn-outline-secondary btn-sm"><i
+                        class="bi bi-clipboard"></i><i class="bi bi-clipboard-check d-none"></i></button>
+            </div>
+            <div class="card-body">
+                <div class="card-text">
+                    <h5>Ingredientes</h5>
+                    <ul>
+                        {% for ing in ing_used %}
+                        <li>{{ ing["quantity"] }} {{ ing["unit_name"] }} de {{ ing["ing_name"] }} </li>
+                        {% endfor %}
+                    </ul>
 
-                <h5>Instrucciones</h5>
-                <p>{{ recipe[0]["instructions"] }}</p>
+                    <h5>Instrucciones</h5>
+                    <p>{{ recipe[0]["instructions"] }}</p>
 
+                </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<!-- Action buttons -->
-<section class="container-fluid d-inline-flex justify-content-between">
-    <form action="/edit_recipe" method="get" class="mb-3 d-inline">
-        <input name="recipe_id" type="hidden" value="{{ recipe[0]['id'] }}">
-        <button type="submit" class="btn btn-color"><i class="bi bi-pencil"></i> Editar</button>
-    </form>
+    <!-- Action buttons -->
+    <section class="container-fluid d-inline-flex justify-content-between">
+        <form action="/edit_recipe" method="get" class="mb-3 d-inline">
+            <input name="recipe_id" type="hidden" value="{{ recipe[0]['id'] }}">
+            <button type="submit" class="btn btn-color"><i class="bi bi-pencil"></i> Editar</button>
+        </form>
 
-    <form action="/delete_recipe" method="get" class="mb-3 d-inline">
-        <input name="recipe_id" type="hidden" value="{{ recipe[0]['id'] }}">
-        <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Eliminar</button>
-    </form>
-</section>
-
+        <form action="/delete_recipe" method="get" class="mb-3 d-inline">
+            <input name="recipe_id" type="hidden" value="{{ recipe[0]['id'] }}">
+            <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Eliminar</button>
+        </form>
+    </section>
 
 {% endblock %}
 
 
 {% block script %}
+
 <script>
     // https://www.freecodecamp.org/news/copy-text-to-clipboard-javascript/
     document.addEventListener('DOMContentLoaded', function () {

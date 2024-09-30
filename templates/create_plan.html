@@ -30,25 +30,18 @@
 
     <section class="container-fluid text-center">
         <table class="table align-middle table-striped table-hover">
-            <!-- <thead>
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">Nombre</th>
-                <th scope="col">Link</th>
-              </tr>
-            </thead> -->
             <tbody>
                 {% for recipe in recipes %}
-                <tr>
-                    <th scope="row">{{ loop.index }}</th>
-                    <td>{{ recipe["name"] }}</td>
-                    <td>
-                        <form action="/search" method="post">
-                            <input name="id" type="hidden" value="{{ recipe['id'] }}">
-                            <button type="submit" class="btn btn-color">Receta</button>
-                        </form>
-                    </td>
-                </tr>
+                    <tr>
+                        <th scope="row">{{ loop.index }}</th>
+                        <td>{{ recipe["name"] }}</td>
+                        <td>
+                            <form action="/search" method="post">
+                                <input name="id" type="hidden" value="{{ recipe['id'] }}">
+                                <button type="submit" class="btn btn-color">Receta</button>
+                            </form>
+                        </td>
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>

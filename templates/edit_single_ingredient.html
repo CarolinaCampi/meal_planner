@@ -5,17 +5,17 @@
 {% endblock %}
 
 {% block main %}
-<section class="container-fluid">
-    <form action="/edit_single_ingredient" method="post" class="row">
-        <input name="ing_id" type="hidden" value="{{ ingredient[0]['id'] }}">
-        <label for="ing_name" class="col-form-label col-auto">Editar ingrediente: </label>
-        <div class="col-auto">
-            <input type="text" class="form-control col-sm-3" id="ing_name" name="ing_name" value="{{ ingredient[0]["name"] }}">
-        </div>
-        <button type="submit" class="btn btn-color col-auto mx-3"><i class="bi bi-pen"></i>  Editar</button>
-        
-    </form>
-</section>
+
+    <section class="container-fluid">
+        <form action="/edit_single_ingredient" method="post" class="row">
+            <input name="ing_id" type="hidden" value="{{ ingredient[0]['id'] }}">
+            <label for="ing_name" class="col-form-label col-auto">Editar ingrediente: </label>
+            <div class="col-auto">
+                <input type="text" class="form-control col-sm-3" id="ing_name" name="ing_name" value="{{ ingredient[0]["name"] }}">
+            </div>
+            <button type="submit" class="btn btn-color col-auto mx-3"><i class="bi bi-pen"></i>  Editar</button>
+        </form>
+    </section>
     
 {% endblock %}
 
