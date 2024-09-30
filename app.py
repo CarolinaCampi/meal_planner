@@ -1,14 +1,8 @@
-from flask import Flask, flash, jsonify, redirect, render_template, request, session, g
-# from flask_session import Session
+from flask import Flask, jsonify, render_template, request
 import sqlite3
 
 # Configure application
 app = Flask(__name__)
-
-# Configure session to use filesystem (instead of signed cookies)
-# app.config["SESSION_PERMANENT"] = False
-# app.config["SESSION_TYPE"] = "filesystem"
-# Session(app)
 
 # Function to connect the database
 def db_connect():
@@ -81,6 +75,8 @@ def create_recipe():
         name = request.form.get("recipe_name")
         if not name:
             return render_template('result.html', msg = "Please complete a recipe name")
+        # Standarize the name of the recipe so that, independent fo the use rinput, it always start with a capital letter
+        # This also allows the correct ORDER BY name with SQL, avoiding otdering first uppercase-starting names and second lowercase
         name = name.capitalize()
 
         instructions = request.form.get("recipe_instructions")
@@ -96,8 +92,12 @@ def create_recipe():
                 row = cur.fetchone()
                 (inserted_id, ) = row if row else None
 
+                # Assemble tuples with the information for one ing_used row: 
+                # one ingredient id, one recipe id, one quantity and one unit id
                 query_values = {}
                 for key, value in result.items():
+                    # Using the total amount of the inputs that came with the request,
+                    # we must ignore the name and the instructions, that are handled seperately
                     if key != "recipe_name" and key != "recipe_instructions":
                         number = key.split("_")[1]
                         category = key.split("_")[0]
@@ -124,7 +124,7 @@ def create_recipe():
             # Rollback in case of error
             con.rollback()
             print(e)
-            msg = "Error in the INSERT: " + str(e)
+            msg = "Please try again. There was an error in the INSERT: " + str(e)
 
         finally:
             con.close()
@@ -133,13 +133,15 @@ def create_recipe():
                
     else:    
         cur = db_connect()
+        # Fetch all the ingredients sorted by name
         cur.execute("SELECT * FROM ingredients ORDER BY name ASC")
         ingredients = cur.fetchall()
-
+        # Fetch all the units sorted by name
         cur.execute("SELECT * FROM units ORDER BY name ASC")
         units = cur.fetchall()
 
         db_close(cur)
+
         return render_template("create_recipe.html", ingredients=ingredients, units=units)
 
 
@@ -148,7 +150,7 @@ def create_recipe():
 def search():
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
-       # Access form data
+        # Access form data
         id = request.form.get("id")
 
         # Connect to the SQLite3 datatabase
@@ -170,17 +172,12 @@ def search():
                
     else:   
         query = request.args.get("query")
+        # Search the query on the recipes table of the DB on the name column
         if query:
-            # Connect to the SQLite3 datatabase
             cur = db_connect()
-            # Step 4: Execute the SELECT query
             cur.execute("SELECT id, name FROM recipes WHERE name LIKE ? ORDER BY name ASC LIMIT 50", ("%" + query + "%", ))
-            # Step 5: Fetch the results
-            # Use fetchall() to get all results or fetchone() for a single row
             recipes = cur.fetchall()
-            # Close the connection
             db_close(cur)
-            
         else:
             recipes = []
         return render_template("search.html", recipes=recipes)
@@ -203,7 +200,6 @@ def display_edit_recipe(edited_recipe_id):
         cur.execute("SELECT ing_used.quantity, ingredients.name AS ing_name, ingredients.id AS ing_id, units.name AS unit_name, units.id AS unit_id FROM ing_used JOIN ingredients ON ingredients.id = ing_used.ing_id JOIN units ON units.id = ing_used.unit_id WHERE ing_used.recipe_id = ?", (edited_recipe_id,))
         ing_used = cur.fetchall()
 
-        # Close the connection
         db_close(cur)
 
         return render_template("edit_recipe.html", recipe=recipe, ing_used=ing_used, ingredients=ingredients, units=units)
@@ -233,7 +229,7 @@ def edit_recipe():
                 cur.execute("UPDATE recipes SET name = ?, instructions = ? WHERE id = ?", (recipe_name, instructions, recipe_id))
                 # Delete exiting ingredients
                 cur.execute("DELETE FROM ing_used WHERE recipe_id = ?", (recipe_id,))
-                # Insert new ingredients
+                # Insert new ingredients: same logic as in create_recipe
                 query_values = {}
                 for input_name, input_value in result.items():
                     if input_name != "recipe_name" and input_name != "recipe_instructions" and input_name != "recipe_id":
@@ -261,7 +257,7 @@ def edit_recipe():
         except Exception as e:
             # Rollback in case of error
             con.rollback()
-            msg = "Error in the UPDATE: " + str(e)
+            msg = "Please try again. There was an error in the UPDATE: " + str(e)
 
         finally:
             con.close()
@@ -295,7 +291,7 @@ def delete_recipe():
         except Exception as e:
             # Rollback in case of error
             con.rollback()
-            msg = "Error in the DELETE: " + str(e)
+            msg = "Please try again. There was an error in the DELETE: " + str(e)
 
         finally:
             con.close()
@@ -305,22 +301,17 @@ def delete_recipe():
     else:
         recipe_id = request.args.get("recipe_id")
 
-        # Connect to the SQLite3 datatabase
         cur = db_connect()
-        # Execute the SELECT query
         cur.execute("SELECT * FROM recipes WHERE id = ?", (recipe_id,))
         recipe = cur.fetchall()
-
-        # Close the connection
         db_close(cur)
 
         return render_template("delete_recipe.html", recipe=recipe)
     
 
-# Route to access the meal planner functionality
+# Route to access the meal planner functionality: planned meals list and shopping list
 @app.route("/create_plan", methods=["GET", "POST"])
 def create_plan():
-    # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
         meal_number = request.form.get("meal_number")
         if not (meal_number):
@@ -332,41 +323,32 @@ def create_plan():
         if meal_number < 1:
             return render_template("result.html", msg="Please insert a number of meals greater than zero.")
 
-        # Connect to the SQLite3 datatabase
         cur = db_connect()
-
-        # Execute the SELECT query
         cur.execute("SELECT * FROM recipes ORDER BY random() LIMIT ?", (meal_number,))
         recipes = cur.fetchall()
-
-        # Close the connection
         db_close(cur)
 
-        # Process recipes to get the id?
-
         return render_template("create_plan.html", recipes=recipes)
+    
     else:
         return render_template("create_plan.html")
     
 # See shopping list and copy to clipboard
 @app.route("/shopping_list", methods=["POST"])
 def shopping_list():
-    # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
         recipes_id = request.form
-        print(recipes_id)
 
         query_ids = []
+        # the id of the recipe is stored in the value of the input element and the name in the name of the input element
         for input_name, input_value in recipes_id.items():
             category = input_name.split("_")[0]
 
             if category == "id":
                 query_ids.append(input_value)
 
-        print(query_ids)
-        # Connect to the SQLite3 datatabase
         cur = db_connect()
-
+        # Assemble a placeholder woth the correct size for each case e.g: ?,?,?
         placeholders = ','.join('?' for _ in query_ids)
         # Recipes query
         recipes_query = f"SELECT * FROM recipes WHERE id IN ({placeholders})"
@@ -379,10 +361,7 @@ def shopping_list():
         ing_used_query = f"SELECT SUM(ing_used.quantity) AS quantity, ingredients.name AS ing_name, units.name AS unit_name FROM ing_used JOIN ingredients ON ingredients.id = ing_used.ing_id JOIN units ON units.id = ing_used.unit_id WHERE ing_used.recipe_id IN ({placeholders}) GROUP BY ing_used.ing_id"
         # Execute the SELECT query
         cur.execute(ing_used_query, query_ids)
-        
         ing_used = cur.fetchall()
-
-        # Close the connection
         db_close(cur)
 
         return render_template("shopping_list.html", recipes=recipes, ing_used=ing_used)
@@ -409,31 +388,18 @@ def create_unit():
                 # get the returning id from the inserted row
                 row = cur.fetchone()
                 (inserted_id, ) = row if row else None
-
                 con.commit()
-                # msg = "Record successfully edited in the database"
-        
+
         except Exception as e:
             # Rollback in case of error
             con.rollback()
-            # msg = "Error in the UPDATE: " + str(e)
             print(e)
 
         finally:
             con.close()
-            # Send the transaction message to result.html
-        
-        # check if the request came from create_recipe or edit_recipe
-        # Only edit_recipe passes the recipe_id
-        # if "recipe_id" not in request_data:
-        print("No unit id so the request came from create_recipe")
 
-            # Return the new option as a JSON response
+        # Return the new option as a JSON response
         return jsonify({"item_id": inserted_id, "item_name": new_unit_name})
-        # else:
-        #     # recipe_id = request_data["recipe_id"]
-        #     return jsonify({"item_id": inserted_id, "item_name": new_unit_name})
-
 
 # Create new ingredient
 @app.route("/create_ingredient", methods=["POST"])
@@ -459,38 +425,26 @@ def create_ingredient():
                 (inserted_id, ) = row if row else None
 
                 con.commit()
-                # msg = "Record successfully edited in the database"
         
         except Exception as e:
             # Rollback in case of error
             con.rollback()
-            # msg = "Error in the UPDATE: " + str(e)
             print(e)
 
         finally:
             con.close()
-        
-        # Check if the request came from create_recipe or edit_recipe
-        # Only edit_recipe passes the recipe_id        
-        if "recipe_id" not in request_data:
-            print("No recipe id so the request came from create_recipe")
 
-            # Return the new option as a JSON response
-            return jsonify({"item_id": inserted_id, "item_name": new_ing_name})
-        else:
-            recipe_id = request_data["recipe_id"]
-            return display_edit_recipe(recipe_id)
+        # Return the new option as a JSON response
+        return jsonify({"item_id": inserted_id, "item_name": new_ing_name})
 
 
 # Menu to choose the ingredient and the action to perform
 @app.route("/edit_ingredients")            
 def edit_ingredients():
 
-    # Connect to the SQLite3 datatabase
     cur = db_connect()
     cur.execute("SELECT * FROM ingredients ORDER BY name ASC")
     all_ingredients = cur.fetchall()
-    # Close the connection
     db_close(cur)
 
     return render_template("edit_ingredients.html", all_ingredients=all_ingredients)
@@ -498,7 +452,6 @@ def edit_ingredients():
 # Edit the ingredient name
 @app.route("/edit_single_ingredient", methods=["GET", "POST"])
 def edit_single_ingredient():
-    # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
 
         ing_id = request.form.get("ing_id")
@@ -519,22 +472,19 @@ def edit_single_ingredient():
         except Exception as e:
             # Rollback in case of error
             con.rollback()
-            msg = "Error in the UPDATE: " + str(e)
+            msg = "Please try again. Thare was an error in the UPDATE: " + str(e)
 
         finally:
             con.close()
-            # Send the transaction message to result.html
             return render_template('result.html', msg=msg) 
 
 
     else:
         ing_id = request.args.get("ing_id")
-        
-        # Connect to the SQLite3 datatabase
+
         cur = db_connect()
         cur.execute("SELECT * FROM ingredients WHERE id = ?", (ing_id,))
         ingredient = cur.fetchall()
-        # Close the connection
         db_close(cur)
 
         return render_template("edit_single_ingredient.html", ingredient=ingredient)
@@ -542,7 +492,6 @@ def edit_single_ingredient():
 # Delete the ingredient
 @app.route("/delete_ingredient", methods=["GET", "POST"])
 def delete_ingredient():
-    # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
         ing_id = request.form.get("ing_id")
         try:
@@ -551,19 +500,15 @@ def delete_ingredient():
                     cur = con.cursor()
                     # Delete from 'ingredients' table 
                     cur.execute("DELETE FROM ingredients WHERE id = ?", (ing_id,))
-
-                    # Commit the transaction
                     con.commit()
                     msg = "Record successfully deleted from the database"
 
         except Exception as e:
-            # Rollback in case of error
             con.rollback()
             msg = "Error in the DELETE: " + str(e)
 
         finally:
             con.close()
-            # Send the transaction message to result.html
             return render_template('result.html',msg=msg)
 
     else:
@@ -580,9 +525,6 @@ def delete_ingredient():
 
         cur.execute("SELECT * FROM ingredients WHERE id = ?", (ing_id,))
         ingredient = cur.fetchall()
-
-
-        # Close the connection
         db_close(cur)
 
         return render_template("delete_ingredient.html", ingredient=ingredient) 
@@ -590,11 +532,10 @@ def delete_ingredient():
 # Menu to choose the ingredient and the action to perform
 @app.route("/edit_units")            
 def edit_units():
-    # Connect to the SQLite3 datatabase
+
     cur = db_connect()
     cur.execute("SELECT * FROM units ORDER BY name ASC")
     all_units = cur.fetchall()
-    # Close the connection
     db_close(cur)
 
     return render_template("edit_units.html", all_units=all_units)
@@ -602,7 +543,6 @@ def edit_units():
 # Edit the unit name
 @app.route("/edit_single_unit", methods=["GET", "POST"])
 def edit_single_unit():
-    # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
         unit_id = request.form.get("unit_id")
         unit_name = request.form.get("unit_name")
@@ -626,18 +566,14 @@ def edit_single_unit():
 
         finally:
             con.close()
-            # Send the transaction message to result.html
             return render_template('result.html', msg=msg) 
-
 
     else:
         unit_id = request.args.get("unit_id")
-        
-        # Connect to the SQLite3 datatabase
+
         cur = db_connect()
         cur.execute("SELECT * FROM units WHERE id = ?", (unit_id,))
         unit = cur.fetchall()
-        # Close the connection
         db_close(cur)
 
         return render_template("edit_single_unit.html", unit=unit)
@@ -645,35 +581,30 @@ def edit_single_unit():
 # Delete the unit
 @app.route("/delete_unit", methods=["GET", "POST"])
 def delete_unit():
-    # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
         unit_id = request.form.get("unit_id")
         try:
             # Connect to the database and DELETE a specific record based on rowid
             with sqlite3.connect('meal_planner.db') as con:
                     cur = con.cursor()
-                    
                     # Delete from 'units' table
                     cur.execute("DELETE FROM units WHERE id = ?", (unit_id,))
-
-                    # Commit the transaction
                     con.commit()
                     msg = "Record successfully deleted from the database"
 
         except Exception as e:
             # Rollback in case of error
             con.rollback()
-            msg = "Error in the DELETE: " + str(e)
+            msg = "Please try again. There was an error in the DELETE: " + str(e)
 
         finally:
             con.close()
-            # Send the transaction message to result.html
+            
             return render_template('result.html',msg=msg)
 
     else:
         unit_id = request.args.get("unit_id")
 
-        # Connect to the SQLite3 datatabase
         cur = db_connect()
         cur.execute("SELECT * FROM ing_used WHERE unit_id = ?", (unit_id,))
         recipes = cur.fetchall()
@@ -683,7 +614,6 @@ def delete_unit():
         
         cur.execute("SELECT * FROM units WHERE id = ?", (unit_id,))
         unit = cur.fetchall()
-        # Close the connection
         db_close(cur)
 
         return render_template("delete_unit.html", unit=unit) 
